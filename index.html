@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neuroom: Chat Feedback Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="prototype">
+    <!-- Left panel: controls -->
+    <section class="prototype-controls">
+      <p class="prototype-controls__label">Прототип фичи</p>
+      <h1 class="prototype-controls__title">Чат вместо отчёта</h1>
+      <p class="prototype-controls__subtitle">Вместо статичной страницы с оценкой и списком ошибок — бот пишет ученику в чат, вовлекает в диалог и подводит к пересдаче естественным путём.</p>
+
+      <div class="form-grid">
+        <label class="field">
+          <span class="field__label">Сценарий</span>
+          <select id="scenarioSelect"></select>
+        </label>
+
+        <label class="field">
+          <span class="field__label">Тон обратной связи</span>
+          <div class="segmented" id="toneSegment">
+            <button class="active" data-tone="soft" type="button">Мягкий</button>
+            <button data-tone="neutral" type="button">Нейтральный</button>
+            <button data-tone="direct" type="button">Прямой</button>
+          </div>
+        </label>
+
+        <label class="field">
+          <span class="field__label">Порядок подачи</span>
+          <div class="segmented" id="orderSegment">
+            <button class="active" data-order="positive-first" type="button">Позитив → ошибки</button>
+            <button data-order="errors-first" type="button">Ошибки → позитив</button>
+          </div>
+        </label>
+
+        <label class="field">
+          <span class="field__label">Показывать оценку</span>
+          <div class="segmented" id="gradeSegment">
+            <button data-grade="top" type="button">Вверху</button>
+            <button data-grade="bottom" type="button">В конце</button>
+            <button class="active" data-grade="hidden" type="button">Скрыть</button>
+          </div>
+        </label>
+
+        <label class="field">
+          <span class="field__label">Ошибки</span>
+          <div class="segmented" id="mistakeSegment">
+            <button class="active" data-mistakes="one-by-one" type="button">По одной</button>
+            <button data-mistakes="all" type="button">Все сразу</button>
+          </div>
+        </label>
+
+        <label class="switch">
+          <input id="showCta" type="checkbox" checked />
+          <span>CTA «Исправить и пересдать»</span>
+        </label>
+
+        <label class="switch">
+          <input id="showEncouragement" type="checkbox" checked />
+          <span>Encouragement после каждой ошибки</span>
+        </label>
+
+        <button class="btn-primary" id="replayBtn" type="button">Перезапустить чат</button>
+      </div>
+
+      <div class="hypothesis-box">
+        <p class="hypothesis-box__label">Гипотеза</p>
+        <p class="hypothesis-box__text">«Зелёная ручка» через чат повышает повторные сдачи: мягкий тон, оценка в конце (или скрыта), короткий actionable feedback в диалоговом формате вовлекает ученика и снижает барьер пересдачи.</p>
+        <div class="hypothesis-box__metrics">
+          <div class="metric">
+            <span class="metric__value" id="metricMessages">0</span>
+            <span class="metric__label">Сообщений</span>
+          </div>
+          <div class="metric">
+            <span class="metric__value" id="metricResubmit">—</span>
+            <span class="metric__label">Нажал «Пересдать»</span>
+          </div>
+          <div class="metric">
+            <span class="metric__value" id="metricExpanded">0</span>
+            <span class="metric__label">Раскрыл ошибок</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right panel: phone mockup -->
+    <section class="phone-wrapper">
+      <div class="phone">
+        <div class="phone__status-bar">
+          <span>9:41</span>
+          <div class="phone__status-icons">
+            <svg width="16" height="12" viewBox="0 0 16 12"><path d="M1 8h2v4H1zM5 5h2v7H5zM9 3h2v9H9zM13 0h2v12h-2z" fill="currentColor"/></svg>
+            <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2.4C5.6 2.4 3.5 3.5 2 5.2l1.2 1.2C4.4 5 6.1 4.2 8 4.2s3.6.8 4.8 2.2L14 5.2C12.5 3.5 10.4 2.4 8 2.4zm0 3.6c-1.4 0-2.7.6-3.6 1.6L5.6 8.8c.6-.6 1.5-1 2.4-1s1.8.4 2.4 1l1.2-1.2C10.7 6.6 9.4 6 8 6zm0 3.6c-.6 0-1 .4-1 1s.4 1 1 1 1-.4 1-1-.4-1-1-1z" fill="currentColor"/></svg>
+            <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0" y="1" width="21" height="10" rx="2" stroke="currentColor" fill="none" stroke-width="1"/><rect x="22" y="4" width="2" height="4" rx="1" fill="currentColor" opacity="0.4"/><rect x="2" y="3" width="14" height="6" rx="1" fill="currentColor"/></svg>
+          </div>
+        </div>
+        <div class="phone__header">
+          <button class="phone__back" id="backBtn">
+            <svg width="10" height="16" viewBox="0 0 10 16" fill="none"><path d="M9 1L2 8l7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+          <div class="phone__header-avatar">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" stroke="var(--color-primary)" stroke-width="2"/><path d="M7 18c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="var(--color-primary)" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="9" r="3" stroke="var(--color-primary)" stroke-width="1.5"/></svg>
+          </div>
+          <div class="phone__header-info">
+            <span class="phone__header-name">Нейрум</span>
+            <span class="phone__header-status">проверил домашку</span>
+          </div>
+        </div>
+        <div class="phone__chat" id="chatArea">
+          <!-- messages injected here -->
+        </div>
+        <div class="phone__input-bar">
+          <div class="phone__input" id="studentInput" contenteditable="false" data-placeholder="Ответ ученика..."></div>
+          <button class="phone__send-btn" id="sendBtn" disabled>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M18 10L3 2v6l8 2-8 2v6l15-8z" fill="currentColor"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+</html>
