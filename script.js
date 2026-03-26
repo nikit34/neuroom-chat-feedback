@@ -204,6 +204,8 @@ let mistakeIndex = 0;
 let expandedCount = 0;
 let interactionCount = 0;
 let practiceClicked = false;
+let appealClicked = false;
+let currentAppealState = "default"; // default | pending | accepted | rejected | mixed
 
 /* ── DOM ────────────────────────────────────────────────── */
 
@@ -214,6 +216,7 @@ const metricMessages = document.getElementById("metricMessages");
 const metricExpanded = document.getElementById("metricExpanded");
 const metricInteractions = document.getElementById("metricInteractions");
 const metricPractice = document.getElementById("metricPractice");
+const metricAppeal = document.getElementById("metricAppeal");
 const metricScrolled = document.getElementById("metricScrolled");
 const showEncouragementCheckbox = document.getElementById("showEncouragement");
 
@@ -245,6 +248,120 @@ scenarioSelect.addEventListener("change", () => {
 });
 
 showEncouragementCheckbox.addEventListener("change", () => { showEncouragement = showEncouragementCheckbox.checked; });
+
+// Appeal state selector
+const appealStateSegment = document.getElementById("appealStateSegment");
+appealStateSegment.querySelectorAll("button").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    appealStateSegment.querySelectorAll("button").forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentAppealState = btn.dataset.appeal;
+  });
+});
+
+// Appeal bottom sheet
+const appealOverlay = document.getElementById("appealOverlay");
+const appealSheet = document.getElementById("appealSheet");
+const appealOptions = document.getElementById("appealOptions");
+const appealComment = document.getElementById("appealComment");
+const appealCharCount = document.getElementById("appealCharCount");
+const appealFileInput = document.getElementById("appealFileInput");
+const appealFileList = document.getElementById("appealFileList");
+const appealUploadZone = document.getElementById("appealUploadZone");
+const appealCancelBtn = document.getElementById("appealCancelBtn");
+const appealSubmitBtn = document.getElementById("appealSubmitBtn");
+const appealErrorPoints = document.getElementById("appealErrorPoints");
+
+const DISAGREEMENT_OPTIONS = [
+  "Здесь нет ошибки",
+  "Неправильно распознан символ",
+  "Не понимаю, в чём ошибка",
+  "Не согласен с отметкой",
+  "Другое: напишу в комментарии"
+];
+
+let appealSelectedPoints = [];
+let appealAttachments = [];
+
+// Build options checkboxes
+DISAGREEMENT_OPTIONS.forEach((text) => {
+  const opt = document.createElement("label");
+  opt.className = "appeal-sheet__option";
+  opt.innerHTML = `<input type="checkbox" data-point="${text}"><span class="appeal-sheet__option-text">${text}</span>`;
+  opt.querySelector("input").addEventListener("change", (e) => {
+    if (e.target.checked) {
+      appealSelectedPoints.push(text);
+    } else {
+      appealSelectedPoints = appealSelectedPoints.filter(p => p !== text);
+    }
+    appealErrorPoints.style.display = "none";
+  });
+  appealOptions.appendChild(opt);
+});
+
+appealComment.addEventListener("input", () => {
+  appealCharCount.textContent = appealComment.value.length;
+});
+
+appealFileInput.addEventListener("change", (e) => {
+  const files = Array.from(e.target.files || []);
+  if (appealAttachments.length + files.length > 3) return;
+  const valid = files.filter(f => f.size <= 10 * 1024 * 1024);
+  appealAttachments.push(...valid);
+  renderAppealFiles();
+  appealFileInput.value = "";
+});
+
+function renderAppealFiles() {
+  appealFileList.innerHTML = "";
+  appealAttachments.forEach((file, i) => {
+    const div = document.createElement("div");
+    div.className = "appeal-sheet__file";
+    div.innerHTML = `<span class="appeal-sheet__file-name">${file.name}</span>`;
+    const removeBtn = document.createElement("button");
+    removeBtn.className = "appeal-sheet__file-remove";
+    removeBtn.textContent = "✕";
+    removeBtn.addEventListener("click", () => {
+      appealAttachments.splice(i, 1);
+      renderAppealFiles();
+    });
+    div.appendChild(removeBtn);
+    appealFileList.appendChild(div);
+  });
+  appealUploadZone.style.display = appealAttachments.length >= 3 ? "none" : "";
+}
+
+function openAppealSheet() {
+  appealOverlay.classList.add("active");
+  appealSheet.classList.add("active");
+}
+
+function closeAppealSheet() {
+  appealOverlay.classList.remove("active");
+  appealSheet.classList.remove("active");
+  // Reset form
+  appealSelectedPoints = [];
+  appealAttachments = [];
+  appealComment.value = "";
+  appealCharCount.textContent = "0";
+  appealOptions.querySelectorAll("input").forEach(cb => cb.checked = false);
+  appealFileList.innerHTML = "";
+  appealUploadZone.style.display = "";
+  appealErrorPoints.style.display = "none";
+}
+
+appealOverlay.addEventListener("click", closeAppealSheet);
+appealCancelBtn.addEventListener("click", closeAppealSheet);
+
+appealSubmitBtn.addEventListener("click", () => {
+  if (appealSelectedPoints.length === 0) {
+    appealErrorPoints.textContent = "Выбери хотя бы один пункт";
+    appealErrorPoints.style.display = "";
+    return;
+  }
+  closeAppealSheet();
+  handleAppealSubmit();
+});
 
 replayBtn.addEventListener("click", () => {
   showChatScreen();
@@ -341,9 +458,12 @@ function showHwListScreen() {
   expandedCount = 0;
   interactionCount = 0;
   practiceClicked = false;
+  appealClicked = false;
   updateMetrics(0);
   metricPractice.textContent = "—";
   metricPractice.style.color = "";
+  metricAppeal.textContent = "—";
+  metricAppeal.style.color = "";
   metricScrolled.textContent = "—";
   metricScrolled.style.color = "";
 }
@@ -358,9 +478,12 @@ function replay() {
   expandedCount = 0;
   interactionCount = 0;
   practiceClicked = false;
+  appealClicked = false;
   updateMetrics(0);
   metricPractice.textContent = "—";
   metricPractice.style.color = "";
+  metricAppeal.textContent = "—";
+  metricAppeal.style.color = "";
   metricScrolled.textContent = "—";
   metricScrolled.style.color = "";
 
@@ -424,6 +547,11 @@ function replay() {
     // CTA
     if (s.mistakes.length > 0) {
       seq.push({ type: "cta", text: t.ctaText });
+    }
+
+    // Appeal button (when appeal feature is enabled and there are mistakes)
+    if (currentAppealState !== "default" && s.mistakes.length > 0) {
+      seq.push({ type: "appeal-btn" });
     }
   }
 
@@ -504,6 +632,10 @@ function renderMessage(msg) {
 
     case "cta":
       chat.appendChild(makeCtaButton(msg.text));
+      break;
+
+    case "appeal-btn":
+      chat.appendChild(makeAppealButton());
       break;
 
     case "quick-replies":
@@ -616,6 +748,156 @@ function makeCtaButton(text) {
   return wrap;
 }
 
+/* ── Appeal flow ────────────────────────────────────────── */
+
+function makeAppealButton() {
+  const wrap = document.createElement("div");
+  wrap.className = "msg-appeal-btn";
+  wrap.innerHTML = `
+    <button class="msg-appeal-btn__btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Не согласен с оценкой
+    </button>
+  `;
+  wrap.querySelector("button").addEventListener("click", () => {
+    interactionCount++;
+    metricInteractions.textContent = interactionCount;
+    openAppealSheet();
+  });
+  return wrap;
+}
+
+function handleAppealSubmit() {
+  appealClicked = true;
+  interactionCount++;
+  metricAppeal.textContent = "Да";
+  metricAppeal.style.color = "var(--color-warning)";
+  metricInteractions.textContent = interactionCount;
+
+  // Show student message
+  chatArea.appendChild(makeBubble("student", "Хочу оспорить оценку"));
+  chatArea.scrollTop = chatArea.scrollHeight;
+
+  // Show pending
+  setTimeout(() => {
+    const pending = makeAppealPending();
+    chatArea.appendChild(pending);
+    chatArea.scrollTop = chatArea.scrollHeight;
+
+    // Simulate decision after 2.5s (skip if state is "pending" — stay on pending)
+    const resolvedState = currentAppealState === "pending" ? null : currentAppealState === "default" ? "accepted" : currentAppealState;
+    if (resolvedState) {
+      setTimeout(() => {
+        pending.remove();
+        const decision = makeAppealDecision(resolvedState);
+        chatArea.appendChild(decision);
+        chatArea.scrollTop = chatArea.scrollHeight;
+
+        metricAppeal.textContent = resolvedState === "accepted" || resolvedState === "mixed" ? "Принято" : "Отклонено";
+        metricAppeal.style.color = resolvedState === "accepted" || resolvedState === "mixed"
+          ? "var(--color-success)" : "var(--color-error)";
+      }, 2500);
+    }
+  }, 800);
+}
+
+function makeAppealPending() {
+  const div = document.createElement("div");
+  div.className = "msg-appeal-pending";
+  div.innerHTML = `
+    <div class="msg-appeal-pending__row">
+      <div class="msg-appeal-pending__spinner"></div>
+      Проверяем
+    </div>
+    <div class="msg-appeal-pending__hint">Учитель рассмотрит обращение в течение 72 часов</div>
+  `;
+  return div;
+}
+
+function makeAppealDecision(state) {
+  const s = currentScenario;
+  const oldGrade = s.grade;
+  const newGrade = state === "accepted" ? Math.min(oldGrade + 1, 5) : state === "mixed" ? Math.min(oldGrade + 1, 5) : oldGrade;
+
+  const stateClass = `msg-appeal-decision--${state}`;
+  const titles = {
+    accepted: "Оценку изменили",
+    rejected: "Оценка без изменений",
+    mixed: "Решение частично принято"
+  };
+  const icons = { accepted: "✓", rejected: "📝", mixed: "◐" };
+  const subtitles = {
+    accepted: "Ошибки и оценка обновлены",
+    rejected: "Учитель проверил запрос и оставил оценку без изменений",
+    mixed: "По части заданий решение изменено, по части оставлено"
+  };
+
+  // Build task responses based on mistakes
+  const taskResponses = s.mistakes.slice(0, 2).map((m, i) => {
+    const agree = state === "accepted" || (state === "mixed" && i === 0);
+    return {
+      label: `${m.taskNumber}, ${m.friendlyTitle}`,
+      decision: agree ? "agree" : "disagree",
+      comment: agree
+        ? "Согласен, здесь ошибка была выставлена неверно. Исправил."
+        : "Проверил ещё раз: ошибка подтверждается, оценка без изменений."
+    };
+  });
+
+  let gradeHTML;
+  if (state === "accepted" || (state === "mixed" && oldGrade !== newGrade)) {
+    const colorClass = state === "accepted" ? "msg-appeal-decision__grade-new--accepted" : "msg-appeal-decision__grade-new--mixed";
+    gradeHTML = `
+      <div class="msg-appeal-decision__grade-row">
+        <span style="color:#7f7aab">Было:</span>
+        <span class="msg-appeal-decision__grade-old">${oldGrade}</span>
+        <span style="color:#7f7aab">→</span>
+        <span style="color:#7f7aab">Стало:</span>
+        <span class="msg-appeal-decision__grade-new ${colorClass}">${newGrade}</span>
+      </div>
+    `;
+  } else {
+    gradeHTML = `<div class="msg-appeal-decision__grade-current">Текущая оценка: <strong>${oldGrade}</strong></div>`;
+  }
+
+  const tasksHTML = taskResponses.map(t => `
+    <div class="msg-appeal-decision__task">
+      <div class="msg-appeal-decision__task-header">
+        <span class="msg-appeal-decision__task-label">${t.label}</span>
+        <span class="msg-appeal-decision__task-badge msg-appeal-decision__task-badge--${t.decision}">
+          ${t.decision === "agree" ? "Согласен" : "Не согласен"}
+        </span>
+      </div>
+      <div class="msg-appeal-decision__task-comment">${t.comment}</div>
+    </div>
+  `).join("");
+
+  const div = document.createElement("div");
+  div.className = `msg-appeal-decision ${stateClass}`;
+  div.innerHTML = `
+    <div class="msg-appeal-decision__header">
+      <div>
+        <div class="msg-appeal-decision__title">${titles[state]}</div>
+        <div class="msg-appeal-decision__date">Решение от ${new Date().toLocaleDateString("ru-RU")}</div>
+      </div>
+      <span class="msg-appeal-decision__icon">${icons[state]}</span>
+    </div>
+    <div class="msg-appeal-decision__info">
+      ${gradeHTML}
+      <div class="msg-appeal-decision__subtitle">${subtitles[state]}</div>
+    </div>
+    ${taskResponses.length > 0 ? `
+      <div class="msg-appeal-decision__tasks">
+        <div class="msg-appeal-decision__tasks-label">Ответ по заданиям:</div>
+        ${tasksHTML}
+      </div>
+    ` : ""}
+  `;
+  return div;
+}
+
 function makeQuickReplies(options) {
   const wrap = document.createElement("div");
   wrap.className = "quick-replies";
@@ -701,6 +983,11 @@ function finishAfterMistakes() {
 
   if (s.mistakes.length > 0) {
     remaining.push({ type: "cta", text: t.ctaText });
+  }
+
+  // Appeal button
+  if (currentAppealState !== "default" && s.mistakes.length > 0) {
+    remaining.push({ type: "appeal-btn" });
   }
 
   messageQueue = remaining;
