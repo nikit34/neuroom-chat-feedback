@@ -15,7 +15,7 @@
     <section class="prototype-controls">
       <p class="prototype-controls__label">Прототип фичи</p>
       <h1 class="prototype-controls__title">Чат вместо отчёта</h1>
-      <p class="prototype-controls__subtitle">Вместо статичной страницы с оценкой и списком ошибок — бот пишет ученику в чат, вовлекает в диалог и подводит к пересдаче естественным путём.</p>
+      <p class="prototype-controls__subtitle">Вместо статичной страницы с оценкой и списком ошибок — бот пишет ученику в чат и вовлекает в диалог. Проверяем, увеличивает ли чат-формат вовлечённость ученика в обратную связь.</p>
 
       <div class="form-grid">
         <label class="field">
@@ -58,11 +58,6 @@
         </label>
 
         <label class="switch">
-          <input id="showCta" type="checkbox" checked />
-          <span>CTA «Исправить и пересдать»</span>
-        </label>
-
-        <label class="switch">
           <input id="showEncouragement" type="checkbox" checked />
           <span>Encouragement после каждой ошибки</span>
         </label>
@@ -72,19 +67,23 @@
 
       <div class="hypothesis-box">
         <p class="hypothesis-box__label">Гипотеза</p>
-        <p class="hypothesis-box__text">«Зелёная ручка» через чат повышает повторные сдачи: мягкий тон, оценка в конце (или скрыта), короткий actionable feedback в диалоговом формате вовлекает ученика и снижает барьер пересдачи.</p>
+        <p class="hypothesis-box__text">Чат-формат с мягким тоном и порционной подачей ошибок повышает вовлечённость ученика: больше ошибок раскрыто, больше времени на экране, больше взаимодействий с ботом.</p>
         <div class="hypothesis-box__metrics">
           <div class="metric">
             <span class="metric__value" id="metricMessages">0</span>
-            <span class="metric__label">Сообщений</span>
-          </div>
-          <div class="metric">
-            <span class="metric__value" id="metricResubmit">—</span>
-            <span class="metric__label">Нажал «Пересдать»</span>
+            <span class="metric__label">Сообщений в чате</span>
           </div>
           <div class="metric">
             <span class="metric__value" id="metricExpanded">0</span>
             <span class="metric__label">Раскрыл ошибок</span>
+          </div>
+          <div class="metric">
+            <span class="metric__value" id="metricInteractions">0</span>
+            <span class="metric__label">Взаимодействий</span>
+          </div>
+          <div class="metric">
+            <span class="metric__value" id="metricScrolled">—</span>
+            <span class="metric__label">Дочитал до конца</span>
           </div>
         </div>
       </div>

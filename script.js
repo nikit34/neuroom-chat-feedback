@@ -128,7 +128,6 @@ const tones = {
       : `Есть ${count} ${pluralize(count, "момент", "момента", "моментов")}, на которые стоит обратить внимание:`,
     nextMistake: "И ещё кое-что:",
     adviceIntro: "Мой совет:",
-    ctaText: (count) => `Исправь ${count} ${pluralize(count, "момент", "момента", "моментов")} и пересдай — будет лучше!`,
     gradeText: (g) => g >= 4 ? "Отличный результат!" : g === 3 ? "Неплохо, но можно лучше!" : "Давай разберёмся вместе — всё получится!",
     askExpand: "Хочешь разберём подробнее?",
   },
@@ -138,7 +137,6 @@ const tones = {
     mistakeIntro: (count) => `${count === 1 ? "Найдена" : "Найдены"} ${count} ${pluralize(count, "ошибка", "ошибки", "ошибок")}:`,
     nextMistake: "Следующая ошибка:",
     adviceIntro: "Рекомендация:",
-    ctaText: (count) => `Исправь ${count} ${pluralize(count, "ошибку", "ошибки", "ошибок")} и отправь заново.`,
     gradeText: () => "Итоговая оценка:",
     askExpand: "Нажми, чтобы посмотреть подробности.",
   },
@@ -148,7 +146,6 @@ const tones = {
     mistakeIntro: (count) => `${pluralize(count, "Ошибка", "Ошибки", "Ошибок")}: ${count}.`,
     nextMistake: "Далее:",
     adviceIntro: "",
-    ctaText: () => "Пересдать работу",
     gradeText: () => "Оценка:",
     askExpand: "",
   }
@@ -161,14 +158,13 @@ let currentTone = "soft";
 let currentOrder = "positive-first";
 let currentGrade = "hidden";
 let currentMistakeMode = "one-by-one";
-let showCta = true;
 let showEncouragement = true;
 
 let messageQueue = [];
 let isPlaying = false;
 let mistakeIndex = 0;
 let expandedCount = 0;
-let resubmitClicked = false;
+let interactionCount = 0;
 
 /* ── DOM ────────────────────────────────────────────────── */
 
@@ -176,9 +172,9 @@ const chatArea = document.getElementById("chatArea");
 const scenarioSelect = document.getElementById("scenarioSelect");
 const replayBtn = document.getElementById("replayBtn");
 const metricMessages = document.getElementById("metricMessages");
-const metricResubmit = document.getElementById("metricResubmit");
 const metricExpanded = document.getElementById("metricExpanded");
-const showCtaCheckbox = document.getElementById("showCta");
+const metricInteractions = document.getElementById("metricInteractions");
+const metricScrolled = document.getElementById("metricScrolled");
 const showEncouragementCheckbox = document.getElementById("showEncouragement");
 
 /* ── Init ───────────────────────────────────────────────── */
@@ -200,7 +196,6 @@ scenarioSelect.addEventListener("change", () => {
   replay();
 });
 
-showCtaCheckbox.addEventListener("change", () => { showCta = showCtaCheckbox.checked; });
 showEncouragementCheckbox.addEventListener("change", () => { showEncouragement = showEncouragementCheckbox.checked; });
 
 replayBtn.addEventListener("click", replay);
@@ -216,8 +211,10 @@ function replay() {
   isPlaying = false;
   mistakeIndex = 0;
   expandedCount = 0;
-  resubmitClicked = false;
+  interactionCount = 0;
   updateMetrics(0);
+  metricScrolled.textContent = "—";
+  metricScrolled.style.color = "";
 
   const s = currentScenario;
   const t = tones[currentTone];
@@ -268,11 +265,6 @@ function replay() {
     seq.push({ type: "grade", grade: s.grade, text: t.gradeText(s.grade) });
   }
 
-  // CTA
-  if (showCta && s.mistakes.length > 0) {
-    seq.push({ type: "cta", text: t.ctaText(s.mistakes.length) });
-  }
-
   messageQueue = seq;
   playQueue();
 }
@@ -311,6 +303,13 @@ async function playQueue() {
   }
 
   isPlaying = false;
+
+  // Auto-detect "read to end" for short chats that don't need scrolling
+  const atBottom = chatArea.scrollHeight - chatArea.scrollTop - chatArea.clientHeight < 30;
+  if (atBottom && messageQueue.length === 0) {
+    metricScrolled.textContent = "Да";
+    metricScrolled.style.color = "var(--color-success)";
+  }
 }
 
 function renderMessage(msg) {
@@ -339,10 +338,6 @@ function renderMessage(msg) {
 
     case "grade":
       chat.appendChild(makeGradeBubble(msg.grade, msg.text));
-      break;
-
-    case "cta":
-      chat.appendChild(makeCtaButton(msg.text));
       break;
 
     case "quick-replies":
@@ -402,7 +397,9 @@ function makeMistakeCard(m) {
     card.classList.toggle("expanded");
     if (!wasExpanded) {
       expandedCount++;
+      interactionCount++;
       metricExpanded.textContent = expandedCount;
+      metricInteractions.textContent = interactionCount;
     }
   });
 
@@ -423,37 +420,6 @@ function makeGradeBubble(grade, text) {
   return div;
 }
 
-function makeCtaButton(text) {
-  const wrap = document.createElement("div");
-  wrap.className = "msg-cta";
-  wrap.innerHTML = `
-    <button class="msg-cta__btn">
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-        <path d="M14.5 2.5l3 3-9 9H5.5v-3l9-9z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-        <path d="M12 5l3 3" stroke="currentColor" stroke-width="1.5"/>
-      </svg>
-      ${text}
-    </button>
-  `;
-  wrap.querySelector("button").addEventListener("click", () => {
-    resubmitClicked = true;
-    metricResubmit.textContent = "Да ✓";
-    metricResubmit.style.color = "var(--color-success)";
-
-    // Simulate student reply
-    const studentMsg = makeBubble("student", "Ок, сейчас переделаю!");
-    chatArea.appendChild(studentMsg);
-    chatArea.scrollTop = chatArea.scrollHeight;
-
-    setTimeout(() => {
-      const botReply = makeBubble("bot", "Отлично! Жду исправленный вариант 💪");
-      chatArea.appendChild(botReply);
-      chatArea.scrollTop = chatArea.scrollHeight;
-    }, 800);
-  });
-  return wrap;
-}
-
 function makeQuickReplies(options) {
   const wrap = document.createElement("div");
   wrap.className = "quick-replies";
@@ -465,6 +431,8 @@ function makeQuickReplies(options) {
     btn.addEventListener("click", () => {
       // Remove quick replies
       wrap.remove();
+      interactionCount++;
+      metricInteractions.textContent = interactionCount;
 
       if (opt.action === "next-mistake") {
         // Show student chose to see more
@@ -535,10 +503,6 @@ function finishAfterMistakes() {
     remaining.push({ type: "grade", grade: s.grade, text: t.gradeText(s.grade) });
   }
 
-  if (showCta && s.mistakes.length > 0) {
-    remaining.push({ type: "cta", text: t.ctaText(s.mistakes.length) });
-  }
-
   messageQueue = remaining;
   playQueue();
 }
@@ -592,8 +556,16 @@ function setupSegmented(id, onChange) {
 
 function updateMetrics(count) {
   metricMessages.textContent = count;
-  if (!resubmitClicked) {
-    metricResubmit.textContent = "—";
-    metricResubmit.style.color = "";
-  }
+  metricInteractions.textContent = interactionCount;
 }
+
+// Track "read to the end" — when user scrolls to the bottom of chat after all messages
+chatArea.addEventListener("scroll", () => {
+  if (!isPlaying && messageQueue.length === 0) {
+    const atBottom = chatArea.scrollHeight - chatArea.scrollTop - chatArea.clientHeight < 30;
+    if (atBottom) {
+      metricScrolled.textContent = "Да";
+      metricScrolled.style.color = "var(--color-success)";
+    }
+  }
+});
