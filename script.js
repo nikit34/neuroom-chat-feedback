@@ -159,9 +159,8 @@ const tones = {
 let currentScenario = scenarios[0];
 let currentTone = "soft";
 let currentOrder = "positive-first";
-let currentGrade = "hidden";
+let currentGrade = "bottom";
 let currentMistakeMode = "one-by-one";
-let showCta = true;
 let showEncouragement = true;
 
 let messageQueue = [];
@@ -181,7 +180,6 @@ const metricExpanded = document.getElementById("metricExpanded");
 const metricInteractions = document.getElementById("metricInteractions");
 const metricPractice = document.getElementById("metricPractice");
 const metricScrolled = document.getElementById("metricScrolled");
-const showCtaCheckbox = document.getElementById("showCta");
 const showEncouragementCheckbox = document.getElementById("showEncouragement");
 
 /* ── Init ───────────────────────────────────────────────── */
@@ -203,7 +201,6 @@ scenarioSelect.addEventListener("change", () => {
   replay();
 });
 
-showCtaCheckbox.addEventListener("change", () => { showCta = showCtaCheckbox.checked; });
 showEncouragementCheckbox.addEventListener("change", () => { showEncouragement = showEncouragementCheckbox.checked; });
 
 replayBtn.addEventListener("click", replay);
@@ -277,7 +274,7 @@ function replay() {
   }
 
   // CTA
-  if (showCta && s.mistakes.length > 0) {
+  if (s.mistakes.length > 0) {
     seq.push({ type: "cta", text: t.ctaText });
   }
 
@@ -553,7 +550,7 @@ function finishAfterMistakes() {
     remaining.push({ type: "grade", grade: s.grade, text: t.gradeText(s.grade) });
   }
 
-  if (showCta && s.mistakes.length > 0) {
+  if (s.mistakes.length > 0) {
     remaining.push({ type: "cta", text: t.ctaText });
   }
 
