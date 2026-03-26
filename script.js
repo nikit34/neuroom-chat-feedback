@@ -2,17 +2,31 @@
 
 const scenarios = [
   {
+    id: "perfect",
+    title: "Диктант (5, без ошибок)",
+    hwTitle: "Напиши диктант в тетради, заполни пропуски, озаглавь и разбей текст на абзацы.",
+    hwDate: "21.12.2025",
+    hwDue: "30.12.2025",
+    hwStatus: "graded",
+    subject: "Русский язык",
+    grade: 5,
+    correctness: 100,
+    positive: "Отличная работа! Все задания выполнены без ошибок. Текст разбит на абзацы правильно, пропуски заполнены верно, заголовок подобран удачно.",
+    advice: "",
+    mistakes: []
+  },
+  {
     id: "good",
-    title: "Упр. 416, стр. 9-10 (4, три ошибки)",
+    title: "Упр. 416, стр. 9-10 (4, две мелких ошибки)",
     hwTitle: "Стр. 9-10 Упр. 416 Озаглавить текст. Списать, раскрывая скобки, вставить пропущенные буквы.",
     hwDate: "21.01.2026",
     hwDue: "28.01.2026",
     hwStatus: "graded",
     subject: "Русский язык",
     grade: 4,
-    correctness: 85,
-    positive: "Молодец, что справился с таким объемным текстом!",
-    advice: "Обрати особое внимание на правило написания НЕ с глаголами — это самая серьёзная ошибка в работе. Также старайся не пропускать маленькие слова (предлоги) при списывании.",
+    correctness: 90,
+    positive: "Молодец, что справился с таким объемным текстом! Почти всё написано верно.",
+    advice: "Старайся писать чуть аккуратнее и перечитывай текст после списывания — тогда мелкие ошибки сами бросятся в глаза.",
     mistakes: [
       {
         severity: "minor",
@@ -24,21 +38,12 @@ const scenarios = [
         taskNumber: "Стр. 1"
       },
       {
-        severity: "major",
+        severity: "minor",
         friendlyTitle: "Потерялся предлог",
         original: "Него всё валилось...",
         corrected: "У него всё валилось...",
         explanation: "Кажется, ты пропустил маленькое слово «У» в начале предложения. Получилось «Него всё валилось...», а надо «У него...».",
         encouragement: "Совет: после списывания перечитай текст вслух — пропущенные слова сразу «зазвучат».",
-        taskNumber: "Стр. 1"
-      },
-      {
-        severity: "critical",
-        friendlyTitle: "НЕ с глаголами",
-        original: "неладулось",
-        corrected: "не ладилось",
-        explanation: "Глагол «ладилось» пишется с частицей «не» раздельно. И проверь гласную: от слова «лад».",
-        encouragement: "Запомни: НЕ с глаголами — раздельно (кроме слов, которые без НЕ не существуют, вроде «ненавидеть»).",
         taskNumber: "Стр. 1"
       }
     ]
@@ -186,10 +191,10 @@ const tones = {
 
 /* ── State ──────────────────────────────────────────────── */
 
-let currentScenario = scenarios[0];
+let currentScenario = scenarios.find(s => s.id === "good") || scenarios[0];
 let currentTone = "soft";
-let currentOrder = "positive-first";
-let currentGrade = "bottom";
+const currentOrder = "positive-first";
+const currentGrade = "bottom";
 let currentMistakeMode = "one-by-one";
 let showEncouragement = true;
 
@@ -229,10 +234,9 @@ scenarios.forEach((s) => {
   opt.textContent = s.title;
   scenarioSelect.appendChild(opt);
 });
+scenarioSelect.value = currentScenario.id;
 
 setupSegmented("toneSegment", (v) => { currentTone = v; });
-setupSegmented("orderSegment", (v) => { currentOrder = v; });
-setupSegmented("gradeSegment", (v) => { currentGrade = v; });
 setupSegmented("mistakeSegment", (v) => { currentMistakeMode = v; });
 
 scenarioSelect.addEventListener("change", () => {
