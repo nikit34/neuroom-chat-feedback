@@ -128,6 +128,7 @@ const tones = {
       : `Есть ${count} ${pluralize(count, "момент", "момента", "моментов")}, на которые стоит обратить внимание:`,
     nextMistake: "И ещё кое-что:",
     adviceIntro: "Мой совет:",
+    ctaText: "Хочешь потренироваться на ошибках?",
     gradeText: (g) => g >= 4 ? "Отличный результат!" : g === 3 ? "Неплохо, но можно лучше!" : "Давай разберёмся вместе — всё получится!",
     askExpand: "Хочешь разберём подробнее?",
   },
@@ -137,6 +138,7 @@ const tones = {
     mistakeIntro: (count) => `${count === 1 ? "Найдена" : "Найдены"} ${count} ${pluralize(count, "ошибка", "ошибки", "ошибок")}:`,
     nextMistake: "Следующая ошибка:",
     adviceIntro: "Рекомендация:",
+    ctaText: "Потренироваться на ошибках?",
     gradeText: () => "Итоговая оценка:",
     askExpand: "Нажми, чтобы посмотреть подробности.",
   },
@@ -146,6 +148,7 @@ const tones = {
     mistakeIntro: (count) => `${pluralize(count, "Ошибка", "Ошибки", "Ошибок")}: ${count}.`,
     nextMistake: "Далее:",
     adviceIntro: "",
+    ctaText: "Тренировка на ошибках",
     gradeText: () => "Оценка:",
     askExpand: "",
   }
@@ -158,6 +161,7 @@ let currentTone = "soft";
 let currentOrder = "positive-first";
 let currentGrade = "hidden";
 let currentMistakeMode = "one-by-one";
+let showCta = true;
 let showEncouragement = true;
 
 let messageQueue = [];
@@ -165,6 +169,7 @@ let isPlaying = false;
 let mistakeIndex = 0;
 let expandedCount = 0;
 let interactionCount = 0;
+let practiceClicked = false;
 
 /* ── DOM ────────────────────────────────────────────────── */
 
@@ -174,7 +179,9 @@ const replayBtn = document.getElementById("replayBtn");
 const metricMessages = document.getElementById("metricMessages");
 const metricExpanded = document.getElementById("metricExpanded");
 const metricInteractions = document.getElementById("metricInteractions");
+const metricPractice = document.getElementById("metricPractice");
 const metricScrolled = document.getElementById("metricScrolled");
+const showCtaCheckbox = document.getElementById("showCta");
 const showEncouragementCheckbox = document.getElementById("showEncouragement");
 
 /* ── Init ───────────────────────────────────────────────── */
@@ -196,6 +203,7 @@ scenarioSelect.addEventListener("change", () => {
   replay();
 });
 
+showCtaCheckbox.addEventListener("change", () => { showCta = showCtaCheckbox.checked; });
 showEncouragementCheckbox.addEventListener("change", () => { showEncouragement = showEncouragementCheckbox.checked; });
 
 replayBtn.addEventListener("click", replay);
@@ -212,7 +220,10 @@ function replay() {
   mistakeIndex = 0;
   expandedCount = 0;
   interactionCount = 0;
+  practiceClicked = false;
   updateMetrics(0);
+  metricPractice.textContent = "—";
+  metricPractice.style.color = "";
   metricScrolled.textContent = "—";
   metricScrolled.style.color = "";
 
@@ -265,6 +276,11 @@ function replay() {
     seq.push({ type: "grade", grade: s.grade, text: t.gradeText(s.grade) });
   }
 
+  // CTA
+  if (showCta && s.mistakes.length > 0) {
+    seq.push({ type: "cta", text: t.ctaText });
+  }
+
   messageQueue = seq;
   playQueue();
 }
@@ -298,7 +314,7 @@ async function playQueue() {
     const msg = messageQueue.shift();
     await showTyping(msg.type === "mistake" ? 800 : 500);
     renderMessage(msg);
-    updateMetrics(chatArea.querySelectorAll(".msg, .msg-mistake, .msg-grade, .msg-cta").length);
+    updateMetrics(chatArea.querySelectorAll(".msg, .msg-mistake, .msg-grade").length);
     await delay(200);
   }
 
@@ -338,6 +354,10 @@ function renderMessage(msg) {
 
     case "grade":
       chat.appendChild(makeGradeBubble(msg.grade, msg.text));
+      break;
+
+    case "cta":
+      chat.appendChild(makeCtaButton(msg.text));
       break;
 
     case "quick-replies":
@@ -418,6 +438,36 @@ function makeGradeBubble(grade, text) {
     </div>
   `;
   return div;
+}
+
+function makeCtaButton(text) {
+  const wrap = document.createElement("div");
+  wrap.className = "msg-cta";
+  wrap.innerHTML = `
+    <button class="msg-cta__btn">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M10 3v14M5 10l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      ${text}
+    </button>
+  `;
+  wrap.querySelector("button").addEventListener("click", () => {
+    practiceClicked = true;
+    interactionCount++;
+    metricPractice.textContent = "Да";
+    metricPractice.style.color = "var(--color-success)";
+    metricInteractions.textContent = interactionCount;
+
+    chatArea.appendChild(makeBubble("student", "Да, давай!"));
+    chatArea.scrollTop = chatArea.scrollHeight;
+
+    setTimeout(() => {
+      const botReply = makeBubble("bot", "Отлично! Сейчас подготовлю задания по твоим ошибкам...");
+      chatArea.appendChild(botReply);
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }, 800);
+  });
+  return wrap;
 }
 
 function makeQuickReplies(options) {
@@ -501,6 +551,10 @@ function finishAfterMistakes() {
 
   if (currentGrade === "bottom") {
     remaining.push({ type: "grade", grade: s.grade, text: t.gradeText(s.grade) });
+  }
+
+  if (showCta && s.mistakes.length > 0) {
+    remaining.push({ type: "cta", text: t.ctaText });
   }
 
   messageQueue = remaining;
