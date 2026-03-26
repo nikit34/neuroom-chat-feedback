@@ -1,34 +1,60 @@
-/* ── Scenarios ───────────────────────────────────────────── */
+/* ── Scenarios (based on real Neuroom stage data) ────────── */
 
 const scenarios = [
   {
     id: "good",
-    title: "Хорошая работа (4, одна ошибка)",
+    title: "Упр. 416, стр. 9-10 (4, три ошибки)",
+    hwTitle: "Стр. 9-10 Упр. 416 Озаглавить текст. Списать, раскрывая скобки, вставить пропущенные буквы.",
+    hwDate: "21.01.2026",
+    hwDue: "28.01.2026",
+    hwStatus: "graded",
     subject: "Русский язык",
     grade: 4,
     correctness: 85,
-    positive: "Отлично справился с заданием! Видно, что ты хорошо понимаешь тему.",
-    advice: "Обрати внимание на запятые перед союзами.",
+    positive: "Молодец, что справился с таким объемным текстом!",
+    advice: "Обрати особое внимание на правило написания НЕ с глаголами — это самая серьёзная ошибка в работе. Также старайся не пропускать маленькие слова (предлоги) при списывании.",
     mistakes: [
       {
+        severity: "minor",
+        friendlyTitle: "Небольшая помарка",
+        original: "неловкость (исправление)",
+        corrected: "неловкость",
+        explanation: "Ты правильно написал слово, но немного исправил букву. Старайся писать сразу чисто.",
+        encouragement: "Мелочь, но аккуратность — часть оценки. В следующий раз пиши уверенно!",
+        taskNumber: "Стр. 1"
+      },
+      {
         severity: "major",
-        friendlyTitle: "Запятая перед «но»",
-        original: "Я хотел пойти но передумал",
-        corrected: "Я хотел пойти, но передумал",
-        explanation: "Перед союзом «но» всегда ставится запятая, потому что он соединяет две части сложного предложения.",
-        encouragement: "Это легко запомнить: «но» = запятая. Ты уже в двух других местах поставил правильно!",
-        taskNumber: "Упр. 134"
+        friendlyTitle: "Потерялся предлог",
+        original: "Него всё валилось...",
+        corrected: "У него всё валилось...",
+        explanation: "Кажется, ты пропустил маленькое слово «У» в начале предложения. Получилось «Него всё валилось...», а надо «У него...».",
+        encouragement: "Совет: после списывания перечитай текст вслух — пропущенные слова сразу «зазвучат».",
+        taskNumber: "Стр. 1"
+      },
+      {
+        severity: "critical",
+        friendlyTitle: "НЕ с глаголами",
+        original: "неладулось",
+        corrected: "не ладилось",
+        explanation: "Глагол «ладилось» пишется с частицей «не» раздельно. И проверь гласную: от слова «лад».",
+        encouragement: "Запомни: НЕ с глаголами — раздельно (кроме слов, которые без НЕ не существуют, вроде «ненавидеть»).",
+        taskNumber: "Стр. 1"
       }
     ]
   },
   {
     id: "medium",
-    title: "Средняя работа (3, три ошибки)",
+    title: "Списать и подчеркнуть (3, три ошибки)",
+    hwTitle: "Списать. Вставить знаки препинания. Подчеркнуть грамматические основы предложений.",
+    hwDate: "20.01.2026",
+    hwDue: "24.01.2026",
+    hwStatus: "graded",
     subject: "Русский язык",
     grade: 3,
     correctness: 55,
     positive: "Хороший старт! Видно, что ты старался — половина работы выполнена верно.",
-    advice: "Повтори правила на безударные гласные и запятые.",
+    advice: "Повтори правила на безударные гласные и знаки препинания в сложных предложениях.",
     mistakes: [
       {
         severity: "critical",
@@ -37,7 +63,7 @@ const scenarios = [
         corrected: "корова",
         explanation: "Слово «корова» — словарное, его нужно запомнить. Проверочного слова нет.",
         encouragement: "Словарные слова — это просто тренировка памяти. Попробуй написать его 3 раза — и запомнится!",
-        taskNumber: "Упр. 98"
+        taskNumber: "Стр. 1"
       },
       {
         severity: "major",
@@ -46,71 +72,75 @@ const scenarios = [
         corrected: "Солнце светило, и птицы пели",
         explanation: "Это сложное предложение с двумя основами. Перед «и» нужна запятая, когда он соединяет два простых предложения.",
         encouragement: "Совет: найди подлежащее и сказуемое в каждой части — если их два набора, ставь запятую.",
-        taskNumber: "Упр. 99"
+        taskNumber: "Стр. 1"
       },
       {
         severity: "minor",
         friendlyTitle: "Мягкий знак в глаголах",
-        original: "он учится",
-        corrected: "он учится",
-        explanation: "Здесь ты написал правильно! Но в соседнем предложении «хочет учиться» пропустил мягкий знак. Вопрос: «что делать?» → «учиться» (с ь).",
+        original: "хочет учится",
+        corrected: "хочет учиться",
+        explanation: "В предложении «хочет учиться» нужен мягкий знак. Вопрос: «что делать?» → «учиться» (с ь).",
         encouragement: "Лайфхак: задай вопрос к глаголу. Если в вопросе есть «ь» (что делать?) — пиши «ь».",
-        taskNumber: "Упр. 100"
+        taskNumber: "Стр. 2"
       }
     ]
   },
   {
     id: "bad",
-    title: "Слабая работа (2, пять ошибок)",
-    subject: "Математика",
+    title: "Алгебра: вынесение за скобку (2, пять ошибок)",
+    hwTitle: "Разложить на множители методом группировки (упр. 214–218).",
+    hwDate: "18.03.2026",
+    hwDue: "03.04.2026",
+    hwStatus: "graded",
+    subject: "Алгебра",
     grade: 2,
     correctness: 20,
     positive: "Вижу, что ты взялся за все задания — это уже хорошо!",
-    advice: "Давай разберём ошибки по порядку, большинство из них на одну тему.",
+    advice: "Давай разберём ошибки по порядку. Основная проблема — знаки при вынесении множителя за скобку.",
     mistakes: [
       {
         severity: "critical",
-        friendlyTitle: "Ошибка в вычитании",
-        original: "45 - 18 = 33",
-        corrected: "45 - 18 = 27",
-        explanation: "При вычитании с переходом через десяток: 45 - 18. Сначала 45 - 10 = 35, потом 35 - 8 = 27.",
-        encouragement: "Попробуй вычитать по шагам: сначала десятки, потом единицы — так проще не запутаться.",
+        friendlyTitle: "Описка в знаке",
+        original: "x(n+k)",
+        corrected: "x(n−k)",
+        explanation: "При группировке xk − xn выносим x, в скобках остаётся (k−n). Ты написал (n+k), что не соответствует ни одному из вариантов.",
+        encouragement: "Попробуй вычитать по шагам: сначала вынеси общий множитель, потом проверь знаки в скобках.",
         taskNumber: "№ 214а"
       },
       {
         severity: "critical",
-        friendlyTitle: "Ошибка в умножении",
-        original: "7 × 8 = 54",
-        corrected: "7 × 8 = 56",
-        explanation: "7 × 8 = 56. Можно проверить: 7 × 8 = 7 × 7 + 7 = 49 + 7 = 56.",
-        encouragement: "Таблицу умножения на 7 и 8 часто путают. Попробуй запомнить: 56 = 7 × 8 (цифры идут подряд: 5, 6, 7, 8).",
+        friendlyTitle: "Потерян минус в ответе",
+        original: "(n−k)(m+x)",
+        corrected: "(n−k)(m−x)",
+        explanation: "Метод группировки: m(n−k) − x(n−k) = (n−k)(m−x). Ты потерял минус перед x при финальной записи ответа.",
+        encouragement: "Совет: после получения ответа подставь числа и проверь — это ловит знаковые ошибки.",
         taskNumber: "№ 214б"
       },
       {
         severity: "critical",
-        friendlyTitle: "Неверное деление",
-        original: "64 ÷ 8 = 9",
-        corrected: "64 ÷ 8 = 8",
-        explanation: "64 ÷ 8 = 8. Проверка: 8 × 8 = 64. ✓",
-        encouragement: "Полезный приём: всегда проверяй деление обратным умножением!",
+        friendlyTitle: "Ошибка в знаке при группировке",
+        original: "(k−x)(x+y)",
+        corrected: "(k−x)(x−y)",
+        explanation: "При группировке: x(k−x) − y(k−x) = (k−x)(x−y). Ты написал плюс во второй скобке.",
+        encouragement: "Полезный приём: всегда проверяй ответ обратным раскрытием скобок!",
         taskNumber: "№ 216а"
       },
       {
         severity: "major",
-        friendlyTitle: "Ошибка в задаче",
-        original: "Ответ: 15 яблок",
-        corrected: "Ответ: 12 яблок",
-        explanation: "В корзине было 20 яблок, раздали по 4 на двоих = 8. Осталось 20 - 8 = 12.",
-        encouragement: "Нарисуй условие задачи — это помогает увидеть, что нужно посчитать.",
+        friendlyTitle: "Неверный метод решения",
+        original: "a(c²−d)",
+        corrected: "a(x²+y²) − b(x²+y²) + (b−a)",
+        explanation: "Ты начал группировку совершенно неверно, вынеся «a» за скобку из слагаемых, где «a» нет, и придумав переменные c и d, которых нет в условии.",
+        encouragement: "Нарисуй условие задачи — это помогает увидеть, что нужно сгруппировать.",
         taskNumber: "№ 218"
       },
       {
         severity: "minor",
-        friendlyTitle: "Не упростил дробь",
-        original: "4/8",
-        corrected: "1/2",
-        explanation: "4/8 можно сократить на 4: получится 1/2.",
-        encouragement: "Ответ правильный, только нужно довести до конца — сократить!",
+        friendlyTitle: "Ошибка оформления",
+        original: "Пропуск в записи",
+        corrected: "Непрерывная запись решения",
+        explanation: "Ты оставил огромное пустое пространство посередине решения, разорвав логику записи. Это нарушает культуру математической записи.",
+        encouragement: "Ответ правильный по сути, только нужно довести до конца — записать аккуратно!",
         taskNumber: "№ 216б"
       }
     ]
@@ -182,6 +212,15 @@ const metricPractice = document.getElementById("metricPractice");
 const metricScrolled = document.getElementById("metricScrolled");
 const showEncouragementCheckbox = document.getElementById("showEncouragement");
 
+// Screens
+const hwListScreen = document.getElementById("hwListScreen");
+const hwList = document.getElementById("hwList");
+const inputBar = document.getElementById("inputBar");
+const backBtn = document.getElementById("backBtn");
+const headerName = document.getElementById("headerName");
+const headerStatus = document.getElementById("headerStatus");
+const headerAvatar = document.getElementById("headerAvatar");
+
 /* ── Init ───────────────────────────────────────────────── */
 
 scenarios.forEach((s) => {
@@ -198,15 +237,112 @@ setupSegmented("mistakeSegment", (v) => { currentMistakeMode = v; });
 
 scenarioSelect.addEventListener("change", () => {
   currentScenario = scenarios.find((s) => s.id === scenarioSelect.value);
-  replay();
+  renderHwList();
 });
 
 showEncouragementCheckbox.addEventListener("change", () => { showEncouragement = showEncouragementCheckbox.checked; });
 
-replayBtn.addEventListener("click", replay);
+replayBtn.addEventListener("click", () => {
+  showChatScreen();
+  replay();
+});
 
-// Start
-replay();
+backBtn.addEventListener("click", showHwListScreen);
+
+// Start — show homework list
+renderHwList();
+
+/* ── Screen management ─────────────────────────────────── */
+
+function renderHwList() {
+  hwList.innerHTML = "";
+
+  // "Требуют внимания" section
+  const sectionLabel = document.createElement("div");
+  sectionLabel.className = "hw-list__section-label";
+  sectionLabel.textContent = "Требуют внимания";
+  hwList.appendChild(sectionLabel);
+
+  // Active scenario card (highlighted)
+  const activeCard = makeHwCard(currentScenario, true);
+  hwList.appendChild(activeCard);
+
+  // Other scenarios as background cards
+  const otherLabel = document.createElement("div");
+  otherLabel.className = "hw-list__section-label";
+  otherLabel.style.marginTop = "8px";
+  otherLabel.textContent = "Проверенные";
+  hwList.appendChild(otherLabel);
+
+  scenarios.forEach((s) => {
+    if (s.id !== currentScenario.id) {
+      hwList.appendChild(makeHwCard(s, false));
+    }
+  });
+}
+
+function makeHwCard(s, isActive) {
+  const card = document.createElement("div");
+  card.className = "hw-card";
+  const badgeClass = isActive ? "hw-card__badge--attention" : "hw-card__badge--graded";
+  const badgeText = isActive ? "Новая обратная связь" : `Оценка: ${s.grade}`;
+  card.innerHTML = `
+    <div class="hw-card__title">${s.hwTitle || s.title}</div>
+    <div class="hw-card__meta">
+      <span class="hw-card__meta-item">${s.subject}</span>
+      <span class="hw-card__meta-item">Создано: ${s.hwDate || "—"}</span>
+    </div>
+    <div class="hw-card__badge ${badgeClass}">${badgeText}</div>
+  `;
+  card.addEventListener("click", () => {
+    currentScenario = s;
+    scenarioSelect.value = s.id;
+    showChatScreen();
+    replay();
+  });
+  return card;
+}
+
+function showChatScreen() {
+  hwListScreen.style.display = "none";
+  chatArea.style.display = "";
+  inputBar.style.display = "";
+  backBtn.style.display = "";
+  headerName.textContent = "Нейрум";
+  headerStatus.textContent = "проверил домашку";
+  headerAvatar.innerHTML = `
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+      <circle cx="10" cy="10" r="9" stroke="var(--color-primary)" stroke-width="1.5"/>
+      <path d="M6 12c0 0 1.5 2 4 2s4-2 4-2" stroke="var(--color-primary)" stroke-width="1.2" stroke-linecap="round"/>
+      <circle cx="7.5" cy="8.5" r="1" fill="var(--color-primary)"/>
+      <circle cx="12.5" cy="8.5" r="1" fill="var(--color-primary)"/>
+    </svg>
+  `;
+}
+
+function showHwListScreen() {
+  hwListScreen.style.display = "";
+  chatArea.style.display = "none";
+  inputBar.style.display = "none";
+  backBtn.style.display = "none";
+  headerName.textContent = "Домашние задания";
+  headerStatus.textContent = "";
+  headerAvatar.innerHTML = `
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+      <rect x="2" y="2" width="16" height="16" rx="4" stroke="var(--color-primary)" stroke-width="1.5"/>
+      <path d="M6 10.5L9 13.5L14 7" stroke="var(--color-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  `;
+  // Reset metrics
+  expandedCount = 0;
+  interactionCount = 0;
+  practiceClicked = false;
+  updateMetrics(0);
+  metricPractice.textContent = "—";
+  metricPractice.style.color = "";
+  metricScrolled.textContent = "—";
+  metricScrolled.style.color = "";
+}
 
 /* ── Chat engine ────────────────────────────────────────── */
 
@@ -238,6 +374,9 @@ function replay() {
     seq.push({ type: "grade", grade: s.grade, text: t.gradeText(s.grade) });
   }
 
+  // In one-by-one mode with >1 mistake, advice/grade/CTA are deferred to finishAfterMistakes()
+  const willPauseForMistakes = currentMistakeMode === "one-by-one" && s.mistakes.length > 1;
+
   if (currentOrder === "positive-first") {
     // Positive
     if (t.positiveIntro) seq.push({ type: "bot", text: t.positiveIntro });
@@ -248,34 +387,40 @@ function replay() {
     seq.push({ type: "bot", text: t.mistakeIntro(s.mistakes.length) });
     // Mistakes
     addMistakes(seq, s, t);
-    // Advice
-    if (s.advice && t.adviceIntro) {
-      seq.push({ type: "bot", text: `${t.adviceIntro} ${s.advice}` });
-    } else if (s.advice) {
-      seq.push({ type: "bot", text: s.advice });
+    // Advice (only if not pausing for one-by-one)
+    if (!willPauseForMistakes) {
+      if (s.advice && t.adviceIntro) {
+        seq.push({ type: "bot", text: `${t.adviceIntro} ${s.advice}` });
+      } else if (s.advice) {
+        seq.push({ type: "bot", text: s.advice });
+      }
     }
   } else {
     // Errors first
     seq.push({ type: "bot", text: t.mistakeIntro(s.mistakes.length) });
     addMistakes(seq, s, t);
-    seq.push({ type: "separator", text: "Что получилось" });
-    if (t.positiveIntro) seq.push({ type: "bot", text: t.positiveIntro });
-    seq.push({ type: "bot", text: s.positive });
-    if (s.advice && t.adviceIntro) {
-      seq.push({ type: "bot", text: `${t.adviceIntro} ${s.advice}` });
-    } else if (s.advice) {
-      seq.push({ type: "bot", text: s.advice });
+    if (!willPauseForMistakes) {
+      seq.push({ type: "separator", text: "Что получилось" });
+      if (t.positiveIntro) seq.push({ type: "bot", text: t.positiveIntro });
+      seq.push({ type: "bot", text: s.positive });
+      if (s.advice && t.adviceIntro) {
+        seq.push({ type: "bot", text: `${t.adviceIntro} ${s.advice}` });
+      } else if (s.advice) {
+        seq.push({ type: "bot", text: s.advice });
+      }
     }
   }
 
-  // Grade at bottom?
-  if (currentGrade === "bottom") {
-    seq.push({ type: "grade", grade: s.grade, text: t.gradeText(s.grade) });
-  }
+  if (!willPauseForMistakes) {
+    // Grade at bottom?
+    if (currentGrade === "bottom") {
+      seq.push({ type: "grade", grade: s.grade, text: t.gradeText(s.grade) });
+    }
 
-  // CTA
-  if (s.mistakes.length > 0) {
-    seq.push({ type: "cta", text: t.ctaText });
+    // CTA
+    if (s.mistakes.length > 0) {
+      seq.push({ type: "cta", text: t.ctaText });
+    }
   }
 
   messageQueue = seq;
@@ -399,10 +544,10 @@ function makeMistakeCard(m) {
     <div class="msg-mistake__body">
       <div class="msg-mistake__content">
         <div>${m.explanation}</div>
-        <div class="msg-mistake__diff">
-          <span class="msg-mistake__was">${m.original}</span>
-          <span class="msg-mistake__now">${m.corrected}</span>
-        </div>
+        <div class="msg-mistake__diff-label">В твоем ответе:</div>
+        <div class="msg-mistake__diff-value msg-mistake__diff-value--was">${m.original}</div>
+        <div class="msg-mistake__diff-label">Как должно быть:</div>
+        <div class="msg-mistake__diff-value msg-mistake__diff-value--now">${m.corrected}</div>
         ${showEncouragement && m.encouragement ? `<div class="msg-mistake__encouragement">${m.encouragement}</div>` : ""}
       </div>
     </div>

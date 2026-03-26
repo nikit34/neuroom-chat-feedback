@@ -711,3 +711,132 @@ select {
   padding: 6px 0;
   animation: msgIn 0.3s ease-out;
 }
+
+/* ── Homework list screen ────────── */
+
+.phone__screen {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.phone__screen::-webkit-scrollbar {
+  width: 3px;
+}
+
+.phone__screen::-webkit-scrollbar-thumb {
+  background: #d0cde1;
+  border-radius: 3px;
+}
+
+.hw-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hw-list__section-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #7f7aab;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 4px;
+}
+
+.hw-card {
+  background: var(--color-surfaces);
+  border-radius: 16px;
+  padding: 14px;
+  cursor: pointer;
+  transition: var(--transition);
+  border: 1px solid transparent;
+}
+
+.hw-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 2px 12px rgba(116, 87, 254, 0.1);
+}
+
+.hw-card__title {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 18px;
+  margin-bottom: 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.hw-card__meta {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  color: #7f7aab;
+}
+
+.hw-card__meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hw-card__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.hw-card__badge--attention {
+  background: rgba(255, 179, 71, 0.12);
+  color: #e09422;
+}
+
+.hw-card__badge--graded {
+  background: rgba(15, 187, 166, 0.1);
+  color: var(--color-success);
+}
+
+.hw-card__badge--new {
+  background: rgba(116, 87, 254, 0.1);
+  color: var(--color-primary);
+}
+
+/* ── Diff labels (mistake card) ──── */
+
+.msg-mistake__diff-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #7f7aab;
+  margin-top: 8px;
+  margin-bottom: 2px;
+}
+
+.msg-mistake__diff-label:first-child {
+  margin-top: 4px;
+}
+
+.msg-mistake__diff-value {
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.msg-mistake__diff-value--was {
+  background: rgba(255, 112, 112, 0.1);
+  color: var(--color-error);
+  text-decoration: line-through;
+}
+
+.msg-mistake__diff-value--now {
+  background: rgba(15, 187, 166, 0.1);
+  color: var(--color-success);
+}
