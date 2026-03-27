@@ -205,7 +205,9 @@ let expandedCount = 0;
 let interactionCount = 0;
 let practiceClicked = false;
 let appealClicked = false;
+let appealCount = 0;
 let currentAppealState = "default"; // default | pending | accepted | rejected | mixed
+let appealCurrentMistake = null; // mistake object currently being contested
 
 /* ── DOM ────────────────────────────────────────────────── */
 
@@ -331,7 +333,18 @@ function renderAppealFiles() {
   appealUploadZone.style.display = appealAttachments.length >= 3 ? "none" : "";
 }
 
-function openAppealSheet() {
+function openAppealSheet(mistake) {
+  appealCurrentMistake = mistake || null;
+  // Update header with mistake context
+  const titleEl = appealSheet.querySelector(".appeal-sheet__title");
+  const descEl = appealSheet.querySelector(".appeal-sheet__desc");
+  if (mistake) {
+    titleEl.textContent = "Оспорить ошибку";
+    descEl.innerHTML = `<strong>${mistake.friendlyTitle}</strong> (${mistake.taskNumber})<br>Опиши, почему считаешь, что здесь нет ошибки. Учитель рассмотрит в течение 72 часов.`;
+  } else {
+    titleEl.textContent = "Попросить перепроверить";
+    descEl.textContent = "Опиши, что кажется неверным. Учитель рассмотрит обращение в течение 72 часов.";
+  }
   appealOverlay.classList.add("active");
   appealSheet.classList.add("active");
 }
@@ -459,6 +472,7 @@ function showHwListScreen() {
   interactionCount = 0;
   practiceClicked = false;
   appealClicked = false;
+  appealCount = 0;
   updateMetrics(0);
   metricPractice.textContent = "—";
   metricPractice.style.color = "";
@@ -479,6 +493,7 @@ function replay() {
   interactionCount = 0;
   practiceClicked = false;
   appealClicked = false;
+  appealCount = 0;
   updateMetrics(0);
   metricPractice.textContent = "—";
   metricPractice.style.color = "";
@@ -549,10 +564,6 @@ function replay() {
       seq.push({ type: "cta", text: t.ctaText });
     }
 
-    // Appeal button (when appeal feature is enabled and there are mistakes)
-    if (currentAppealState !== "default" && s.mistakes.length > 0) {
-      seq.push({ type: "appeal-btn" });
-    }
   }
 
   messageQueue = seq;
@@ -634,10 +645,6 @@ function renderMessage(msg) {
       chat.appendChild(makeCtaButton(msg.text));
       break;
 
-    case "appeal-btn":
-      chat.appendChild(makeAppealButton());
-      break;
-
     case "quick-replies":
       chat.appendChild(makeQuickReplies(msg.options));
       break;
@@ -669,6 +676,8 @@ function makeMistakeCard(m) {
   const iconClass = `msg-mistake__icon msg-mistake__icon--${m.severity}`;
   const iconLabel = m.severity === "critical" ? "!" : m.severity === "major" ? "●" : "~";
 
+  const showAppeal = currentAppealState !== "default";
+
   card.innerHTML = `
     <div class="msg-mistake__header">
       <div class="${iconClass}">${iconLabel}</div>
@@ -685,6 +694,7 @@ function makeMistakeCard(m) {
         <div class="msg-mistake__diff-label">Как должно быть:</div>
         <div class="msg-mistake__diff-value msg-mistake__diff-value--now">${m.corrected}</div>
         ${showEncouragement && m.encouragement ? `<div class="msg-mistake__encouragement">${m.encouragement}</div>` : ""}
+        ${showAppeal ? `<button class="msg-mistake__appeal-btn">Оспорить ошибку</button>` : ""}
       </div>
     </div>
   `;
@@ -700,6 +710,16 @@ function makeMistakeCard(m) {
       metricInteractions.textContent = interactionCount;
     }
   });
+
+  if (showAppeal) {
+    const appealBtn = card.querySelector(".msg-mistake__appeal-btn");
+    appealBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      interactionCount++;
+      metricInteractions.textContent = interactionCount;
+      openAppealSheet(m);
+    });
+  }
 
   return card;
 }
@@ -750,34 +770,20 @@ function makeCtaButton(text) {
 
 /* ── Appeal flow ────────────────────────────────────────── */
 
-function makeAppealButton() {
-  const wrap = document.createElement("div");
-  wrap.className = "msg-appeal-btn";
-  wrap.innerHTML = `
-    <button class="msg-appeal-btn__btn">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Не согласен с оценкой
-    </button>
-  `;
-  wrap.querySelector("button").addEventListener("click", () => {
-    interactionCount++;
-    metricInteractions.textContent = interactionCount;
-    openAppealSheet();
-  });
-  return wrap;
-}
-
 function handleAppealSubmit() {
+  const mistake = appealCurrentMistake;
   appealClicked = true;
+  appealCount++;
   interactionCount++;
-  metricAppeal.textContent = "Да";
+  metricAppeal.textContent = appealCount;
   metricAppeal.style.color = "var(--color-warning)";
   metricInteractions.textContent = interactionCount;
 
-  // Show student message
-  chatArea.appendChild(makeBubble("student", "Хочу оспорить оценку"));
+  // Show student message referencing the specific mistake
+  const studentText = mistake
+    ? `Хочу оспорить: «${mistake.friendlyTitle}»`
+    : "Хочу оспорить ошибку";
+  chatArea.appendChild(makeBubble("student", studentText));
   chatArea.scrollTop = chatArea.scrollHeight;
 
   // Show pending
@@ -791,13 +797,9 @@ function handleAppealSubmit() {
     if (resolvedState) {
       setTimeout(() => {
         pending.remove();
-        const decision = makeAppealDecision(resolvedState);
+        const decision = makeAppealMistakeDecision(resolvedState, mistake);
         chatArea.appendChild(decision);
         chatArea.scrollTop = chatArea.scrollHeight;
-
-        metricAppeal.textContent = resolvedState === "accepted" || resolvedState === "mixed" ? "Принято" : "Отклонено";
-        metricAppeal.style.color = resolvedState === "accepted" || resolvedState === "mixed"
-          ? "var(--color-success)" : "var(--color-error)";
       }, 2500);
     }
   }, 800);
@@ -816,84 +818,46 @@ function makeAppealPending() {
   return div;
 }
 
-function makeAppealDecision(state) {
-  const s = currentScenario;
-  const oldGrade = s.grade;
-  const newGrade = state === "accepted" ? Math.min(oldGrade + 1, 5) : state === "mixed" ? Math.min(oldGrade + 1, 5) : oldGrade;
+function makeAppealMistakeDecision(state, mistake) {
+  // For per-mistake appeal: accepted means this mistake was removed, rejected means it stays
+  // "mixed" doesn't apply to single mistake — treat as accepted
+  const effectiveState = state === "mixed" ? "accepted" : state;
+  const isAccepted = effectiveState === "accepted";
 
-  const stateClass = `msg-appeal-decision--${state}`;
-  const titles = {
-    accepted: "Оценку изменили",
-    rejected: "Оценка без изменений",
-    mixed: "Решение частично принято"
-  };
-  const icons = { accepted: "✓", rejected: "📝", mixed: "◐" };
-  const subtitles = {
-    accepted: "Ошибки и оценка обновлены",
-    rejected: "Учитель проверил запрос и оставил оценку без изменений",
-    mixed: "По части заданий решение изменено, по части оставлено"
-  };
+  const stateClass = isAccepted ? "msg-appeal-decision--accepted" : "msg-appeal-decision--rejected";
+  const title = isAccepted ? "Ошибка снята" : "Ошибка подтверждена";
+  const icon = isAccepted ? "✓" : "📝";
+  const subtitle = isAccepted
+    ? "Учитель согласился — эта ошибка не будет учитываться"
+    : "Учитель проверил и подтвердил ошибку";
+  const teacherComment = isAccepted
+    ? "Согласен, здесь ошибка была выставлена неверно. Исправил."
+    : "Проверил ещё раз: ошибка подтверждается, оценка по ней без изменений.";
 
-  // Build task responses based on mistakes
-  const taskResponses = s.mistakes.slice(0, 2).map((m, i) => {
-    const agree = state === "accepted" || (state === "mixed" && i === 0);
-    return {
-      label: `${m.taskNumber}, ${m.friendlyTitle}`,
-      decision: agree ? "agree" : "disagree",
-      comment: agree
-        ? "Согласен, здесь ошибка была выставлена неверно. Исправил."
-        : "Проверил ещё раз: ошибка подтверждается, оценка без изменений."
-    };
-  });
-
-  let gradeHTML;
-  if (state === "accepted" || (state === "mixed" && oldGrade !== newGrade)) {
-    const colorClass = state === "accepted" ? "msg-appeal-decision__grade-new--accepted" : "msg-appeal-decision__grade-new--mixed";
-    gradeHTML = `
-      <div class="msg-appeal-decision__grade-row">
-        <span style="color:#7f7aab">Было:</span>
-        <span class="msg-appeal-decision__grade-old">${oldGrade}</span>
-        <span style="color:#7f7aab">→</span>
-        <span style="color:#7f7aab">Стало:</span>
-        <span class="msg-appeal-decision__grade-new ${colorClass}">${newGrade}</span>
-      </div>
-    `;
-  } else {
-    gradeHTML = `<div class="msg-appeal-decision__grade-current">Текущая оценка: <strong>${oldGrade}</strong></div>`;
-  }
-
-  const tasksHTML = taskResponses.map(t => `
-    <div class="msg-appeal-decision__task">
-      <div class="msg-appeal-decision__task-header">
-        <span class="msg-appeal-decision__task-label">${t.label}</span>
-        <span class="msg-appeal-decision__task-badge msg-appeal-decision__task-badge--${t.decision}">
-          ${t.decision === "agree" ? "Согласен" : "Не согласен"}
-        </span>
-      </div>
-      <div class="msg-appeal-decision__task-comment">${t.comment}</div>
-    </div>
-  `).join("");
+  const mistakeLabel = mistake ? `${mistake.taskNumber}, ${mistake.friendlyTitle}` : "Ошибка";
+  const badgeClass = isAccepted ? "msg-appeal-decision__task-badge--agree" : "msg-appeal-decision__task-badge--disagree";
+  const badgeText = isAccepted ? "Согласен" : "Не согласен";
 
   const div = document.createElement("div");
   div.className = `msg-appeal-decision ${stateClass}`;
   div.innerHTML = `
     <div class="msg-appeal-decision__header">
       <div>
-        <div class="msg-appeal-decision__title">${titles[state]}</div>
+        <div class="msg-appeal-decision__title">${title}</div>
         <div class="msg-appeal-decision__date">Решение от ${new Date().toLocaleDateString("ru-RU")}</div>
       </div>
-      <span class="msg-appeal-decision__icon">${icons[state]}</span>
+      <span class="msg-appeal-decision__icon">${icon}</span>
     </div>
-    <div class="msg-appeal-decision__info">
-      ${gradeHTML}
-      <div class="msg-appeal-decision__subtitle">${subtitles[state]}</div>
-    </div>
-    ${taskResponses.length > 0 ? `
-      <div class="msg-appeal-decision__tasks">
-        <div class="msg-appeal-decision__tasks-label">Ответ по заданиям:</div>
-        ${tasksHTML}
+    <div class="msg-appeal-decision__tasks">
+      <div class="msg-appeal-decision__task">
+        <div class="msg-appeal-decision__task-header">
+          <span class="msg-appeal-decision__task-label">${mistakeLabel}</span>
+          <span class="msg-appeal-decision__task-badge ${badgeClass}">${badgeText}</span>
+        </div>
+        <div class="msg-appeal-decision__task-comment">${teacherComment}</div>
       </div>
-    ` : ""}
+    </div>
+    <div class="msg-appeal-decision__subtitle" style="font-size:11px;color:#7f7aab;font-style:italic">${subtitle}</div>
   `;
   return div;
 }

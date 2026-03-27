@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f0f1a">
+<title>Neuroom — Опрос: обратная связь по ДЗ</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✏️</text></svg>">
+<style>
+:root {
+  --bg: #0f0f1a;
+  --card: #1a1a2e;
+  --accent: #7c5cfc;
+  --accent-light: #a78bfa;
+  --accent-glow: rgba(124,92,252,.3);
+  --text: #e8e8f0;
+  --text-dim: #8888a0;
+  --success: #34d399;
+  --border: #2a2a40;
+  --input-bg: #12121f;
+  --radius: 16px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%;height:-webkit-fill-available}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100dvh;min-height:-webkit-fill-available;
+  overflow-x:hidden;-webkit-font-smoothing:antialiased;
+  overscroll-behavior-y:none;
+}
+
+/* ── Bg ── */
+.bg-layer{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:.12;animation:bd 20s ease-in-out infinite alternate}
+.blob-1{width:300px;height:300px;background:var(--accent);top:-80px;left:-60px}
+.blob-2{width:250px;height:250px;background:var(--accent-light);bottom:10%;right:-50px;animation-delay:-7s}
+@keyframes bd{0%{transform:translate(0,0) scale(1)}100%{transform:translate(40px,-30px) scale(1.15)}}
+
+/* ── Progress ── */
+.progress-wrap{position:fixed;top:0;left:0;right:0;z-index:100;height:4px;background:var(--border);top:env(safe-area-inset-top,0)}
+.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent),#ec4899,#f59e0b);background-size:200% 100%;animation:sh 3s ease-in-out infinite;transition:width .5s cubic-bezier(.4,0,.2,1);border-radius:0 3px 3px 0}
+@keyframes sh{0%,100%{background-position:0 50%}50%{background-position:100% 50%}}
+
+/* ── App container ── */
+.app{
+  max-width:414px;margin:0 auto;
+  padding:16px 16px 130px;
+  padding-top:calc(env(safe-area-inset-top,0)+12px);
+  min-height:100dvh;display:flex;flex-direction:column;
+}
+
+/* ── Screen ── */
+.screen{display:none;flex-direction:column;gap:16px;flex:1}
+.screen.active{display:flex}
+.screen.anim{animation:fu .4s cubic-bezier(.2,.8,.3,1)}
+@keyframes fu{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+/* ── Question elements ── */
+.q-icon{font-size:42px;text-align:center}
+.anim .q-icon{animation:bi .5s cubic-bezier(.2,.8,.3,1.2)}
+@keyframes bi{0%{transform:scale(0) rotate(-15deg);opacity:0}60%{transform:scale(1.2) rotate(5deg);opacity:1}100%{transform:scale(1) rotate(0)}}
+.q-number{font-size:12px;color:var(--accent-light);font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.q-text{font-size:20px;font-weight:700;line-height:1.35}
+.q-hint{font-size:13px;color:var(--text-dim);line-height:1.5}
+
+/* ── Inputs ── */
+textarea{width:100%;min-height:90px;background:var(--input-bg);border:2px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:16px;font-family:inherit;padding:14px;resize:vertical;outline:none;transition:border-color .2s,box-shadow .2s}
+textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+textarea::placeholder{color:var(--text-dim)}
+input[type="text"]{width:100%;background:var(--input-bg);border:2px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:20px;font-family:inherit;padding:16px;outline:none;transition:border-color .2s,box-shadow .2s;text-align:center;letter-spacing:2px}
+input[type="text"]:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+input[type="text"]::placeholder{color:var(--text-dim);letter-spacing:0}
+
+/* ── Choice ── */
+.choices{display:flex;flex-direction:column;gap:10px}
+.choice-btn{background:var(--input-bg);border:2px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:15px;font-family:inherit;padding:14px 16px;min-height:48px;text-align:left;cursor:pointer;transition:all .2s;line-height:1.4}
+.choice-btn:active{border-color:var(--accent);background:rgba(124,92,252,.12)}
+.choice-btn.selected{border-color:var(--accent);background:rgba(124,92,252,.15);box-shadow:0 0 0 1px var(--accent)}
+
+/* ── Chips ── */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--input-bg);border:2px solid var(--border);border-radius:12px;color:var(--text);font-size:14px;font-family:inherit;padding:10px 14px;min-height:44px;display:flex;align-items:center;cursor:pointer;transition:all .25s;user-select:none;line-height:1.3}
+.chip:active{border-color:var(--accent);background:rgba(124,92,252,.12);transform:scale(.97)}
+.chip.selected{border-color:var(--accent);background:rgba(124,92,252,.18);box-shadow:0 0 0 1px var(--accent),0 4px 12px var(--accent-glow);transform:translateY(-2px)}
+
+/* ── Conditional ── */
+.conditional-input{display:none;margin-top:4px}
+.conditional-input.visible{display:block;animation:fu .3s ease-out}
+.conditional-input textarea{min-height:70px}
+
+/* ── Nav ── */
+.nav{position:fixed;bottom:0;left:0;right:0;padding:12px 16px;padding-bottom:calc(env(safe-area-inset-bottom,0)+12px);background:linear-gradient(transparent,var(--bg) 25%);display:flex;gap:10px;justify-content:center;z-index:50}
+.nav-btn{flex:1;max-width:200px;padding:16px 20px;border-radius:14px;font-size:16px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s;border:none;min-height:50px}
+.btn-back{background:var(--card);color:var(--text-dim)}
+.btn-back:active{background:var(--border)}
+.btn-next{background:linear-gradient(135deg,var(--accent),#9333ea);color:#fff;box-shadow:0 4px 15px var(--accent-glow)}
+.btn-next:active:not(:disabled){transform:scale(.97)}
+.btn-next:disabled{opacity:.4;cursor:default}
+
+/* ── Welcome / Finish ── */
+.welcome-icon{font-size:60px;text-align:center;margin-top:20px;animation:fl 3s ease-in-out infinite}
+@keyframes fl{0%,100%{transform:translateY(0)}25%{transform:translateY(-8px)}75%{transform:translateY(4px)}}
+.welcome-title{font-size:22px;font-weight:800;text-align:center;line-height:1.3;background:linear-gradient(135deg,var(--text),var(--accent-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;padding:0 8px}
+.welcome-sub{font-size:14px;color:var(--text-dim);text-align:center;line-height:1.6}
+.welcome-pills{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.pill{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:8px 16px;font-size:13px;color:var(--text-dim);animation:fu .5s ease-out both}
+.pill:nth-child(1){animation-delay:.1s}.pill:nth-child(2){animation-delay:.2s}.pill:nth-child(3){animation-delay:.3s}
+.finish-icon{font-size:64px;text-align:center;margin-top:40px;animation:fp .6s cubic-bezier(.2,.8,.3,1.3)}
+@keyframes fp{0%{transform:scale(0) rotate(-20deg);opacity:0}60%{transform:scale(1.3) rotate(10deg);opacity:1}100%{transform:scale(1) rotate(0)}}
+.finish-title{font-size:24px;font-weight:800;text-align:center;background:linear-gradient(135deg,var(--success),#60a5fa,var(--accent-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.finish-sub{font-size:14px;color:var(--text-dim);text-align:center;line-height:1.6}
+
+/* ── Round intro ── */
+.round-badge{display:inline-block;background:var(--accent);color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:.5px;text-transform:uppercase}
+.round-title{font-size:20px;font-weight:800;line-height:1.3;text-align:center}
+.round-desc{font-size:14px;color:var(--text-dim);text-align:center;line-height:1.6}
+.round-typewriter{
+  font-size:16px;color:var(--text);text-align:center;line-height:1.6;font-weight:500;
+  min-height:80px;
+}
+.round-typewriter .tw-cursor{
+  display:inline-block;width:2px;height:1em;background:var(--accent-light);
+  vertical-align:text-bottom;margin-left:2px;
+  animation:twBlink .6s step-end infinite;
+}
+@keyframes twBlink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* ══ Phone mockup ══ */
+.phone-frame{
+  width:100%;max-width:340px;
+  /* iPhone 11 ratio: 414/896 ≈ 0.462 → height = width / 0.462 */
+  aspect-ratio: 9/19.5;
+  margin:0 auto;
+  background:#fff;
+  border-radius:32px;
+  border:3px solid #1d1d1f;
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  box-shadow:0 12px 40px rgba(0,0,0,.35);
+  position:relative;
+}
+.phone-status{display:flex;justify-content:space-between;align-items:center;padding:8px 20px 4px;font-size:12px;font-weight:600;color:#1d1d1f}
+.phone-header{display:flex;align-items:center;gap:8px;padding:6px 14px 8px;border-bottom:1px solid #f2f2f2}
+.phone-header-back{background:none;border:none;padding:4px;cursor:pointer;color:#7457fe;font-size:14px}
+.phone-header-avatar{width:30px;height:30px;border-radius:50%;background:rgba(116,87,254,.08);display:flex;align-items:center;justify-content:center;font-size:14px}
+.phone-header-name{font-size:14px;font-weight:600;color:#272443}
+.phone-header-sub{font-size:11px;color:#0fbba6}
+.phone-body{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px;scroll-behavior:smooth}
+.phone-body::-webkit-scrollbar{width:2px}
+.phone-body::-webkit-scrollbar-thumb{background:#d0cde1;border-radius:2px}
+.phone-input-bar{display:flex;align-items:center;gap:6px;padding:8px 12px 20px;border-top:1px solid #f2f2f2;background:#fff}
+.phone-input-field{flex:1;min-height:30px;padding:6px 12px;border-radius:16px;background:#f8f8f8;font-size:12px;color:#b0adc4}
+
+/* ── Mockup variant label ── */
+.mockup-variant{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 18px;border-radius:16px;margin-bottom:8px;
+}
+.mockup-variant.variant-a{background:linear-gradient(135deg,#7c5cfc,#9333ea)}
+.mockup-variant.variant-b{background:linear-gradient(135deg,#f59e0b,#ef4444)}
+.mockup-variant-letter{
+  width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;font-weight:900;color:#fff;flex-shrink:0;
+}
+.mockup-variant-text{flex:1}
+.mockup-variant-title{font-size:16px;font-weight:700;color:#fff}
+.mockup-variant-desc{font-size:12px;color:rgba(255,255,255,.7);margin-top:2px}
+.mockup-instruction{
+  text-align:center;font-size:12px;color:var(--text-dim);margin-bottom:6px;
+}
+
+/* ── Typing indicator ── */
+.m-typing{max-width:60px;padding:10px 16px;border-radius:14px;border-bottom-left-radius:4px;background:#f8f8f8;align-self:flex-start;display:flex;gap:4px}
+.m-typing span{width:6px;height:6px;background:#b0adc4;border-radius:50%;animation:blink 1.2s infinite}
+.m-typing span:nth-child(2){animation-delay:.2s}
+.m-typing span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,60%,100%{opacity:.3}30%{opacity:1}}
+
+/* ── Chat mockup messages ── */
+.m-bot{max-width:80%;padding:8px 12px;border-radius:14px;border-bottom-left-radius:4px;background:#f8f8f8;font-size:13px;line-height:1.4;color:#272443;align-self:flex-start;animation:fu .3s ease-out}
+.m-student{max-width:80%;padding:8px 12px;border-radius:14px;border-bottom-right-radius:4px;background:#7457fe;color:#fff;font-size:13px;line-height:1.4;align-self:flex-end;animation:fu .3s ease-out}
+.m-grade{max-width:85%;align-self:flex-start;padding:10px 14px;border-radius:14px;border-bottom-left-radius:4px;background:#f8f8f8;display:flex;align-items:center;gap:10px;animation:fu .3s ease-out}
+.m-grade-circle{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0}
+.m-grade-circle.g5{background:#0fbba6}.m-grade-circle.g4{background:#66bb6a}.m-grade-circle.g3{background:#ffb347}.m-grade-circle.g2{background:#ff7070}
+.m-grade-text{font-size:12px;color:#272443;line-height:1.3}
+.m-grade-text strong{display:block;font-size:11px;color:#7f7aab;font-weight:500}
+.m-sep{text-align:center;font-size:10px;color:#b0adc4;padding:4px 0}
+.m-mistake{max-width:85%;align-self:flex-start;background:#f8f8f8;border-radius:14px;border-bottom-left-radius:4px;overflow:hidden;animation:fu .3s ease-out}
+.m-mistake-hdr{padding:8px 12px;display:flex;align-items:center;gap:6px;cursor:pointer}
+.m-mistake-icon{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+.m-mistake-icon.critical{background:rgba(255,112,112,.15);color:#ff7070}
+.m-mistake-icon.major{background:rgba(255,179,71,.15);color:#ffb347}
+.m-mistake-icon.minor{background:rgba(116,87,254,.1);color:#7457fe}
+.m-mistake-title{font-size:13px;font-weight:600;color:#272443;flex:1}
+.m-mistake-chevron{color:#b0adc4;font-size:10px;transition:transform .2s}
+.m-mistake.expanded .m-mistake-chevron{transform:rotate(180deg)}
+.m-mistake-body{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.m-mistake.expanded .m-mistake-body{max-height:250px}
+.m-mistake-content{padding:0 12px 10px;font-size:11px;line-height:1.4;color:#5f5a89}
+.m-mistake-diff{margin-top:6px;font-size:10px;font-weight:600;color:#7f7aab}
+.m-mistake-was{display:inline-block;padding:2px 8px;border-radius:6px;background:rgba(255,112,112,.1);color:#ff7070;text-decoration:line-through;font-size:11px;margin-top:2px}
+.m-mistake-now{display:inline-block;padding:2px 8px;border-radius:6px;background:rgba(15,187,166,.1);color:#0fbba6;font-size:11px;margin-top:2px}
+.m-appeal-btn{display:block;margin:8px 0 4px auto;padding:5px 10px;border-radius:8px;border:1.5px solid #7457fe;background:none;color:#7457fe;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit}
+.m-cta{max-width:85%;align-self:flex-start;animation:fu .3s ease-out}
+.m-cta button{display:flex;align-items:center;gap:6px;padding:10px 16px;border-radius:14px;border-bottom-left-radius:4px;border:none;background:linear-gradient(135deg,#7457fe,#9b7dff);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;width:100%}
+
+/* ── Report mockup ── */
+.r-score{background:#fbf8ff;border:1px solid #ededf6;border-radius:16px;padding:16px;display:flex;gap:16px;align-items:center}
+.r-score-grade{background:#fff;border-radius:16px;padding:16px 20px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.r-score-grade-label{font-size:12px;font-weight:500;color:#272443;margin-bottom:6px}
+.r-score-grade-val{background:#6240ff;color:#fff;border-radius:8px;padding:6px 14px;font-size:16px;font-weight:700;display:inline-block}
+.r-score-text{flex:1;font-size:12px;line-height:1.5;color:#333435}
+.r-score-text strong{display:block;font-size:14px;color:#272443;margin-bottom:4px}
+.r-feedback{background:#fff;border:1px solid #ededf6;border-radius:16px;padding:16px}
+.r-feedback h3{font-size:14px;font-weight:600;color:#272443;margin-bottom:8px}
+.r-feedback p{font-size:12px;color:#333435;line-height:1.5}
+.r-error-card{background:#fff;border:1px solid #ededf6;border-radius:16px;overflow:hidden}
+.r-error-page{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid #ededf6}
+.r-error-page-title{font-size:13px;font-weight:600;color:#272443}
+.r-error-badge{background:#7457fe;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px}
+.r-error-item{padding:14px;border-bottom:1px solid #f2f2f2}
+.r-error-item:last-child{border-bottom:none}
+.r-error-num{font-size:12px;font-weight:600;color:#272443;margin-bottom:6px}
+.r-error-desc{font-size:11px;color:#333435;line-height:1.4;margin-bottom:8px}
+.r-error-block{border-radius:12px;padding:12px;margin-bottom:6px}
+.r-error-block.student{background:rgba(255,213,209,.2)}
+.r-error-block.correct{background:#fbf8ff}
+.r-error-block-label{font-size:11px;font-weight:600;margin-bottom:4px}
+.r-error-block.student .r-error-block-label{color:#b91c1b}
+.r-error-block.correct .r-error-block-label{color:#7455ff}
+.r-error-block-val{font-size:12px;color:#232323}
+.r-dispute-btn{display:flex;align-items:center;gap:4px;padding:6px 12px;border-radius:8px;border:1px solid #ededf6;background:#fff;font-size:11px;font-weight:600;color:#272443;cursor:pointer;font-family:inherit;margin-top:4px;float:right}
+
+/* ── Tap hint pulse ── */
+.tap-hint{text-align:center;font-size:12px;color:var(--accent-light);font-weight:600;animation:pulse 2s ease-in-out infinite;margin-top:4px;padding:6px 12px;background:rgba(124,92,252,.08);border-radius:10px}
+@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
+.done-badge{text-align:center;font-size:13px;color:var(--success);font-weight:600;padding:8px 0}
+
+/* ── Sending overlay ── */
+.sending-overlay{display:none;position:fixed;inset:0;background:rgba(15,15,26,.85);z-index:200;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+.sending-overlay.visible{display:flex}
+.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Confetti ── */
+#confetti{position:fixed;inset:0;z-index:100;pointer-events:none}
+
+/* ── Halfway ── */
+.halfway-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);background:linear-gradient(135deg,#7c5cfc,#ec4899);color:#fff;font-size:14px;font-weight:700;padding:10px 20px;border-radius:30px;z-index:150;pointer-events:none;white-space:nowrap;box-shadow:0 8px 30px rgba(124,92,252,.4)}
+.halfway-toast.show{animation:ts 2.5s cubic-bezier(.2,.8,.3,1) forwards}
+@keyframes ts{0%{transform:translateX(-50%) translateY(-100px);opacity:0}15%{transform:translateX(-50%) translateY(0);opacity:1}80%{transform:translateX(-50%) translateY(0);opacity:1}100%{transform:translateX(-50%) translateY(-100px);opacity:0}}
+
+@supports(-webkit-touch-callout:none){body{height:-webkit-fill-available}textarea:focus,input[type="text"]:focus{scroll-margin-bottom:160px}}
+</style>
+</head>
+<body>
+
+<div class="bg-layer"><div class="blob blob-1"></div><div class="blob blob-2"></div></div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+<div class="app" id="app"></div>
+
+<div class="nav" id="nav" style="display:none">
+  <button class="nav-btn btn-back" id="btnBack" onclick="goBack()">Назад</button>
+  <button class="nav-btn btn-next" id="btnNext" onclick="goNext()">Дальше</button>
+</div>
+
+<div class="halfway-toast" id="halfwayToast">&#128170; Половина позади!</div>
+<canvas id="confetti"></canvas>
+<div class="sending-overlay" id="sendingOverlay"><div class="spinner"></div><div style="color:var(--text-dim);font-size:15px">Отправляем...</div></div>
+
+<script>
+const GOOGLE_SCRIPT_URL = '';
+
+// ══════════════════════════════════════
+// PHONE FRAME BUILDER
+// ══════════════════════════════════════
+function phoneFrame(bodyId, headerName, headerSub) {
+  return `
+  <div class="phone-frame">
+    <div class="phone-status"><span>9:41</span><span style="font-size:11px">&#9679;&#9679;&#9679;</span></div>
+    <div class="phone-header">
+      <div class="phone-header-back">&#8249;</div>
+      <div class="phone-header-avatar">&#128578;</div>
+      <div style="flex:1">
+        <div class="phone-header-name">${headerName}</div>
+        ${headerSub ? `<div class="phone-header-sub">${headerSub}</div>` : ''}
+      </div>
+    </div>
+    <div class="phone-body" id="${bodyId}"></div>
+    <div class="phone-input-bar"><div class="phone-input-field">Ответ ученика...</div></div>
+  </div>`;
+}
+
+function reportFrame(bodyId) {
+  return `
+  <div class="phone-frame">
+    <div class="phone-status"><span>9:41</span><span style="font-size:11px">&#9679;&#9679;&#9679;</span></div>
+    <div class="phone-header">
+      <div class="phone-header-back">&#8249;</div>
+      <div style="flex:1">
+        <div class="phone-header-name">Математика</div>
+        <div style="font-size:11px;color:#333435">сдано 16 марта</div>
+      </div>
+    </div>
+    <div class="phone-body" id="${bodyId}" style="background:#f8fafc;gap:10px"></div>
+  </div>`;
+}
+
+// ══════════════════════════════════════
+// TYPEWRITER
+// ══════════════════════════════════════
+function typewrite(el, text, onDone, speed) {
+  speed = speed || 30;
+  el.innerHTML = '<span class="tw-cursor"></span>';
+  let i = 0;
+  const cursor = el.querySelector('.tw-cursor');
+  function tick() {
+    if (i >= text.length) {
+      cursor.remove();
+      if (onDone) onDone();
+      return;
+    }
+    cursor.insertAdjacentText('beforebegin', text[i++]);
+    setTimeout(tick, text[i-1] === '.' || text[i-1] === ',' || text[i-1] === '—' ? speed * 4 : speed);
+  }
+  tick();
+}
+
+// ══════════════════════════════════════
+// AUTO-PLAY CHAT HELPER
+// ══════════════════════════════════════
+function autoPlayChat(bodyId, msgs, onDone) {
+  const body = document.getElementById(bodyId);
+  if (!body) return;
+  body.innerHTML = '';
+  let idx = 0;
+
+  function showNext() {
+    if (idx >= msgs.length) {
+      const done = document.createElement('div'); done.className = 'done-badge'; done.textContent = '✓ Готово — листай дальше';
+      body.appendChild(done);
+      body.scrollTop = body.scrollHeight;
+      document.getElementById('btnNext').disabled = false;
+      if (onDone) onDone();
+      return;
+    }
+    // Show typing indicator
+    const typing = document.createElement('div'); typing.className = 'm-typing';
+    typing.innerHTML = '<span></span><span></span><span></span>';
+    body.appendChild(typing);
+    body.scrollTop = body.scrollHeight;
+
+    const m = msgs[idx++];
+    const delay = m.type === 'grade' ? 1200 : m.type === 'sep' ? 400 : 700 + Math.min(m.text.length * 12, 800);
+
+    setTimeout(() => {
+      typing.remove();
+      let el;
+      if (m.type === 'bot') {
+        el = document.createElement('div'); el.className = 'm-bot'; el.innerHTML = m.text;
+      } else if (m.type === 'sep') {
+        el = document.createElement('div'); el.className = 'm-sep'; el.textContent = '— '+m.text+' —';
+      } else if (m.type === 'grade') {
+        el = document.createElement('div'); el.className = 'm-grade';
+        el.innerHTML = `<div class="m-grade-circle g${m.grade}">${m.grade}</div><div class="m-grade-text"><strong>${m.label}</strong>${m.text}</div>`;
+      }
+      body.appendChild(el);
+      body.scrollTop = body.scrollHeight;
+      setTimeout(showNext, 300);
+    }, delay);
+  }
+  showNext();
+}
+
+// ══════════════════════════════════════
+// MOCKUP CHAT: GRADE
+// ══════════════════════════════════════
+function initMockupChatGrade() {
+  autoPlayChat('mock-chat-grade', [
+    {type:'bot', text:'Привет! &#128075; Посмотрел твою домашку по предмету «Математика».'},
+    {type:'bot', text:'Начну с хорошего:'},
+    {type:'bot', text:'Уверенное выполнение умножения и деления десятичных дробей!'},
+    {type:'sep', text:'Разбор работы'},
+    {type:'grade', grade:4, label:'Оценка за работу', text:'Неплохо, но можно лучше!'},
+  ]);
+}
+
+// ══════════════════════════════════════
+// MOCKUP REPORT: GRADE
+// ══════════════════════════════════════
+function initMockupReportGrade() {
+  const body = document.getElementById('mock-report-grade');
+  if (!body) return;
+  body.innerHTML = `
+    <div class="r-score">
+      <div class="r-score-grade">
+        <div class="r-score-grade-label">Твоя оценка</div>
+        <div class="r-score-grade-val">4</div>
+      </div>
+      <div class="r-score-text">
+        <strong>Так держать &#128077;</strong>
+        Уверенное выполнение умножения и деления десятичных дробей на целые числа!
+      </div>
+    </div>
+    <div class="r-feedback">
+      <h3>Обратная связь по работе</h3>
+      <p>Работа выполнена очень хорошо! Чтобы избежать подобных ошибок, советую после формулы проговаривать каждый шаг.</p>
+    </div>
+  `;
+  setTimeout(() => { document.getElementById('btnNext').disabled = false; }, 2500);
+  body.addEventListener('scroll', () => { document.getElementById('btnNext').disabled = false; }, {once:true});
+}
+
+// ══════════════════════════════════════
+// MOCKUP CHAT: ERRORS
+// ══════════════════════════════════════
+function initMockupChatErrors() {
+  const body = document.getElementById('mock-chat-errors');
+  if (!body) return;
+  body.innerHTML = `
+    <div class="m-bot">Есть 2 момента, на которые стоит обратить внимание:</div>
+    <div class="m-mistake" id="cm1">
+      <div class="m-mistake-hdr" onclick="toggleMistake('cm1')">
+        <div class="m-mistake-icon critical">!</div>
+        <div class="m-mistake-title">Ошибка в умножении</div>
+        <div class="m-mistake-chevron">&#9660;</div>
+      </div>
+      <div class="m-mistake-body">
+        <div class="m-mistake-content">
+          При умножении одночлена на многочлен нужно умножить на каждый член.
+          <div class="m-mistake-diff">В твоем ответе:</div>
+          <div class="m-mistake-was">-0,5c&#178;(2c-3) = (-0,5c&#179; - c + 1,5c&#178;)</div>
+          <div class="m-mistake-diff">Как должно быть:</div>
+          <div class="m-mistake-now">-0,5c&#178;(2c-3) = -c&#179; + 1,5c&#178;</div>
+        </div>
+      </div>
+    </div>
+    <div class="m-mistake" id="cm2">
+      <div class="m-mistake-hdr" onclick="toggleMistake('cm2')">
+        <div class="m-mistake-icon major">&#9679;</div>
+        <div class="m-mistake-title">Ошибка при переписывании</div>
+        <div class="m-mistake-chevron">&#9660;</div>
+      </div>
+      <div class="m-mistake-body">
+        <div class="m-mistake-content">
+          Неверно переписанный член выражения привел к неверному результату.
+          <div class="m-mistake-diff">В твоем ответе:</div>
+          <div class="m-mistake-was">(2a&#178; - b)(3-a) = (2a&#178; - 2b&#178;)(3-a)</div>
+          <div class="m-mistake-diff">Как должно быть:</div>
+          <div class="m-mistake-now">(2a&#178; - b)(3-a) = 6a&#178; - 2a&#179; - 3b + ab</div>
+        </div>
+      </div>
+    </div>
+    <div class="tap-hint">&#128072; Нажми на ошибку, чтобы раскрыть</div>
+  `;
+  let expanded = 0;
+  window._chatErrorCheck = setInterval(() => {
+    const e = body.querySelectorAll('.m-mistake.expanded').length;
+    if (e > expanded) expanded = e;
+    if (expanded >= 1) {
+      document.getElementById('btnNext').disabled = false;
+      clearInterval(window._chatErrorCheck);
+    }
+  }, 300);
+}
+
+function toggleMistake(id) {
+  document.getElementById(id).classList.toggle('expanded');
+}
+
+// ══════════════════════════════════════
+// MOCKUP REPORT: ERRORS
+// ══════════════════════════════════════
+function initMockupReportErrors() {
+  const body = document.getElementById('mock-report-errors');
+  if (!body) return;
+  body.innerHTML = `
+    <div style="font-size:14px;font-weight:700;color:#232323;padding:4px 0">Разбор ошибок</div>
+    <div class="r-error-card">
+      <div class="r-error-page">
+        <div class="r-error-page-title">Страница 1</div>
+        <div class="r-error-badge">Ошибок: 2</div>
+      </div>
+      <div class="r-error-item">
+        <div class="r-error-num">1. Ошибка в умножении одночленов: №701г</div>
+        <div class="r-error-desc">При умножении одночлена на многочлен нужно умножить на каждый член многочлена.</div>
+        <div class="r-error-block student">
+          <div class="r-error-block-label">Ошибка ученика</div>
+          <div class="r-error-block-val">-0,5c&#178;(2c-3) = (-0,5c&#179; - c + 1,5c&#178;)</div>
+        </div>
+        <div class="r-error-block correct">
+          <div class="r-error-block-label">Правильный ответ</div>
+          <div class="r-error-block-val">-0,5c&#178;(2c-3) = -c&#179; + 1,5c&#178;</div>
+        </div>
+      </div>
+      <div class="r-error-item">
+        <div class="r-error-num">2. Ошибка при переписывании: №701д</div>
+        <div class="r-error-desc">Неверно переписанный член выражения привел к неверному результату.</div>
+        <div class="r-error-block student">
+          <div class="r-error-block-label">Ошибка ученика</div>
+          <div class="r-error-block-val">(2a&#178; - b)(3-a) = (2a&#178; - 2b&#178;)(3-a)</div>
+        </div>
+        <div class="r-error-block correct">
+          <div class="r-error-block-label">Правильный ответ</div>
+          <div class="r-error-block-val">(2a&#178; - b)(3-a) = 6a&#178; - 2a&#179; - 3b + ab</div>
+        </div>
+      </div>
+    </div>
+  `;
+  setTimeout(() => { document.getElementById('btnNext').disabled = false; }, 2500);
+  body.addEventListener('scroll', () => { document.getElementById('btnNext').disabled = false; }, {once:true});
+}
+
+// ══════════════════════════════════════
+// MOCKUP CHAT: APPEAL
+// ══════════════════════════════════════
+function initMockupChatAppeal() {
+  const body = document.getElementById('mock-chat-appeal');
+  if (!body) return;
+  body.innerHTML = `
+    <div class="m-mistake expanded" id="ca1">
+      <div class="m-mistake-hdr">
+        <div class="m-mistake-icon critical">!</div>
+        <div class="m-mistake-title">Ошибка в умножении</div>
+      </div>
+      <div class="m-mistake-body" style="max-height:250px">
+        <div class="m-mistake-content">
+          При умножении одночлена на многочлен нужно умножить на каждый член.
+          <div class="m-mistake-diff">В твоем ответе:</div>
+          <div class="m-mistake-was">-0,5c&#178;(2c-3) = (-0,5c&#179; - c + 1,5c&#178;)</div>
+          <div class="m-mistake-diff">Как должно быть:</div>
+          <div class="m-mistake-now">-0,5c&#178;(2c-3) = -c&#179; + 1,5c&#178;</div>
+          <button class="m-appeal-btn" id="appealBtn1" onclick="doChatAppeal()">Оспорить ошибку</button>
+        </div>
+      </div>
+    </div>
+    <div class="tap-hint" id="appealHint">&#128072; Нажми «Оспорить ошибку»</div>
+  `;
+}
+
+function doChatAppeal() {
+  const body = document.getElementById('mock-chat-appeal');
+  const btn = document.getElementById('appealBtn1');
+  if (!btn || btn.dataset.done) return;
+  btn.dataset.done = '1';
+  btn.style.opacity = '.5';
+  document.getElementById('appealHint').remove();
+  // Student message
+  const sm = document.createElement('div'); sm.className = 'm-student'; sm.textContent = 'Хочу оспорить: «Ошибка в умножении»';
+  body.appendChild(sm);
+  body.scrollTop = body.scrollHeight;
+  // Pending
+  setTimeout(() => {
+    const pd = document.createElement('div'); pd.className = 'm-bot'; pd.id = 'appealPending';
+    pd.innerHTML = '<span style="display:inline-block;width:12px;height:12px;border:2px solid #ffb347;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;vertical-align:middle;margin-right:6px"></span>Проверяем...';
+    body.appendChild(pd); body.scrollTop = body.scrollHeight;
+    // Decision
+    setTimeout(() => {
+      pd.remove();
+      const dec = document.createElement('div'); dec.className = 'm-bot';
+      dec.innerHTML = '<div style="font-size:12px;font-weight:700;color:#272443;margin-bottom:4px">&#10003; Ошибка снята</div><div style="font-size:11px;color:#5f5a89">Учитель согласился — эта ошибка не будет учитываться</div>';
+      dec.style.background = '#e6f9f0'; dec.style.border = '1.5px solid #b3e5d1';
+      body.appendChild(dec); body.scrollTop = body.scrollHeight;
+      const done = document.createElement('div'); done.className = 'done-badge'; done.textContent = '✓ Готово — листай дальше';
+      body.appendChild(done);
+      document.getElementById('btnNext').disabled = false;
+    }, 1500);
+  }, 600);
+}
+
+// ══════════════════════════════════════
+// MOCKUP REPORT: APPEAL
+// ══════════════════════════════════════
+function initMockupReportAppeal() {
+  const body = document.getElementById('mock-report-appeal');
+  if (!body) return;
+  body.innerHTML = `
+    <div class="r-error-card">
+      <div class="r-error-page">
+        <div class="r-error-page-title">Страница 1</div>
+        <div class="r-error-badge">Ошибок: 2</div>
+      </div>
+      <div class="r-error-item">
+        <div class="r-error-num">1. Ошибка в умножении одночленов: №701г</div>
+        <div class="r-error-desc">При умножении одночлена на многочлен нужно умножить на каждый член.</div>
+        <button class="r-dispute-btn" id="reportDisputeBtn" onclick="doReportAppeal()">&#9888; Я не согласен</button>
+        <div style="clear:both"></div>
+        <div id="reportAppealResult"></div>
+      </div>
+    </div>
+    <div class="tap-hint" id="reportAppealHint">&#128072; Нажми «Я не согласен»</div>
+  `;
+}
+
+function doReportAppeal() {
+  const btn = document.getElementById('reportDisputeBtn');
+  if (!btn || btn.dataset.done) return;
+  btn.dataset.done = '1';
+  btn.style.opacity = '.5';
+  const hint = document.getElementById('reportAppealHint');
+  if (hint) hint.remove();
+  const res = document.getElementById('reportAppealResult');
+  res.innerHTML = '<div style="margin-top:8px;padding:10px;border-radius:10px;background:#e6f9f0;border:1.5px solid #b3e5d1;font-size:11px;color:#272443"><strong style="display:block;margin-bottom:2px">&#10003; Запрос отправлен</strong>Учитель рассмотрит в течение 72 часов</div>';
+  document.getElementById('btnNext').disabled = false;
+}
+
+// ══════════════════════════════════════
+// QUESTIONS
+// ══════════════════════════════════════
+const screens = [
+  // 0 - Welcome
+  { id:'welcome', type:'welcome' },
+  // ── Round 1: Grade ──
+  { id:'r1_intro', type:'round_intro', round:'Раунд 1 из 3', title:'Оценка и обратная связь', desc:'Сейчас ты увидишь два варианта — как ученику показывают оценку и отзыв учителя. Потрогай каждый.' },
+  { id:'r1_chat', type:'mockup', variant:'a', variantTitle:'Чат с ботом', variantDesc:'Бот пишет сообщения по одному', instruction:'Смотри — сообщения появятся сами', mockup:'chatGrade' },
+  { id:'r1_report', type:'mockup', variant:'b', variantTitle:'Страница-отчёт', variantDesc:'Оценка и отзыв на одной странице', instruction:'Прокрути экран и посмотри', mockup:'reportGrade' },
+  { id:'r1_q1', type:'choice', icon:'&#129504;', number:1, total:8, text:'Какой формат показа оценки понравился больше?', choices:['Чат с ботом','Страница-отчёт','Оба нормально','Оба не понравились'], required:true },
+  { id:'r1_q2', type:'textarea', icon:'&#128172;', number:2, total:8, text:'Почему выбрал(а) именно этот?', placeholder:'Мне больше нравится, потому что...', required:true },
+  // ── Round 2: Errors ──
+  { id:'r2_intro', type:'round_intro', round:'Раунд 2 из 3', title:'Разбор ошибок', desc:'Теперь посмотри, как показан разбор ошибок в каждом варианте.' },
+  { id:'r2_chat', type:'mockup', variant:'a', variantTitle:'Чат с ботом', variantDesc:'Ошибки раскрываются по нажатию', instruction:'Нажми на карточку ошибки', mockup:'chatErrors' },
+  { id:'r2_report', type:'mockup', variant:'b', variantTitle:'Страница-отчёт', variantDesc:'Все ошибки видны сразу', instruction:'Прокрути и посмотри разбор', mockup:'reportErrors' },
+  { id:'r2_q1', type:'choice', icon:'&#128270;', number:3, total:8, text:'Где разбор ошибок понятнее?', choices:['В чате — по одной, с раскрытием','На странице — все сразу с деталями','Одинаково','Оба непонятные'], required:true },
+  { id:'r2_q2', type:'textarea', icon:'&#128221;', number:4, total:8, text:'Что именно было понятнее или удобнее?', placeholder:'Мне удобнее, когда...', required:true },
+  // ── Round 3: Appeal ──
+  { id:'r3_intro', type:'round_intro', round:'Раунд 3 из 3', title:'Оспаривание ошибки', desc:'Иногда ученик считает, что ошибка выставлена неправильно. Посмотри, как это работает.' },
+  { id:'r3_chat', type:'mockup', variant:'a', variantTitle:'Чат с ботом', variantDesc:'Кнопка «Оспорить» внутри ошибки', instruction:'Нажми «Оспорить ошибку»', mockup:'chatAppeal' },
+  { id:'r3_report', type:'mockup', variant:'b', variantTitle:'Страница-отчёт', variantDesc:'Кнопка «Я не согласен» рядом', instruction:'Нажми «Я не согласен»', mockup:'reportAppeal' },
+  { id:'r3_q1', type:'choice', icon:'&#9888;&#65039;', number:5, total:8, text:'Где удобнее оспаривать ошибку?', choices:['В чате','На странице','Одинаково','Не стал(а) бы оспаривать'], required:true },
+  { id:'r3_q2', type:'choice', icon:'&#128588;', number:6, total:8, text:'Ты бы вообще пользовался(лась) кнопкой оспаривания?', choices:['Да, если считаю что ошибки нет','Может быть, но побоялся(лась) бы','Нет, не вижу смысла'], followUp:{triggers:[0,1],text:'В какой ситуации?',placeholder:'Например, если...'}, required:true },
+  // ── Final ──
+  { id:'f_q1', type:'multiselect', icon:'&#128161;', number:7, total:8, text:'Чего не хватает на экране обратной связи?', hint:'Выбери всё важное.', options:[{label:'Задать вопрос учителю'},{label:'Похожие задания для тренировки'},{label:'Видео-разбор от учителя'},{label:'Статистика по ошибкам'},{label:'Сравнение с прошлой работой'},{label:'Подсказки, как исправить'},{label:'Возможность пересдать'},{label:'Всего хватает',exclusive:true}], required:true, minSelect:1 },
+  { id:'f_q2', type:'short_text', icon:'&#127919;', number:8, total:8, text:'Опиши экран обратной связи одним словом.', placeholder:'одно слово', required:true },
+  // Finish
+  { id:'finish', type:'finish' },
+];
+
+// ══════════════════════════════════════
+// STATE
+// ══════════════════════════════════════
+let current = 0;
+const answers = {};
+let shouldAnimate = true;
+let halfwayShown = false;
+
+// ══════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════
+function render() {
+  const app = document.getElementById('app');
+  const s = screens[current];
+  const nav = document.getElementById('nav');
+
+  // Progress
+  const pct = s.type === 'finish' ? 100 : s.type === 'welcome' ? 0 : (current / (screens.length-1) * 100);
+  document.getElementById('progressBar').style.width = pct + '%';
+
+  // Halfway
+  if (current === Math.floor(screens.length/2) && !halfwayShown) {
+    halfwayShown = true;
+    const t = document.getElementById('halfwayToast'); t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  const ac = shouldAnimate ? ' anim' : '';
+  shouldAnimate = false;
+  let html = `<div class="screen active${ac}">`;
+
+  if (s.type === 'welcome') {
+    html += `
+      <div class="welcome-icon">&#9998;&#65039;</div>
+      <div class="welcome-title">Попробуй два варианта обратной связи и расскажи, какой лучше</div>
+      <div class="welcome-sub">
+        Тебе покажут два формата — чат и страницу.<br>
+        Потрогай каждый, потом ответь на вопросы.<br>
+        Правильных ответов нет — это не тест.
+      </div>
+      <div class="welcome-pills">
+        <div class="pill">&#9201; 4 минуты</div>
+        <div class="pill">3 раунда + 8 вопросов</div>
+        <div class="pill">&#128274; анонимно</div>
+      </div>`;
+    nav.style.display = 'flex';
+    document.getElementById('btnBack').style.display = 'none';
+    document.getElementById('btnNext').textContent = 'Начать';
+    document.getElementById('btnNext').disabled = false;
+    html += '</div>';
+    app.innerHTML = html;
+    return;
+  }
+
+  if (s.type === 'finish') {
+    html += `
+      <div class="finish-icon">&#127881;</div>
+      <div class="finish-title">Готово!</div>
+      <div class="finish-sub">Спасибо! Это реально поможет сделать обратную связь лучше.</div>`;
+    nav.style.display = 'none';
+    html += '</div>';
+    app.innerHTML = html;
+    launchConfetti();
+    return;
+  }
+
+  if (s.type === 'round_intro') {
+    html += `
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:16px;text-align:center">
+        <div class="round-badge">${s.round}</div>
+        <div class="round-title">${s.title}</div>
+        <div class="round-typewriter" id="typewriterTarget"></div>
+      </div>`;
+    nav.style.display = 'flex';
+    document.getElementById('btnBack').style.display = current > 1 ? '' : 'none';
+    document.getElementById('btnNext').textContent = 'Дальше';
+    document.getElementById('btnNext').disabled = true;
+    html += '</div>';
+    app.innerHTML = html;
+    // Typewriter effect
+    typewrite(document.getElementById('typewriterTarget'), s.desc, () => {
+      document.getElementById('btnNext').disabled = false;
+    });
+    return;
+  }
+
+  if (s.type === 'mockup') {
+    const isA = s.variant === 'a';
+    const letter = isA ? 'А' : 'Б';
+    const cls = isA ? 'variant-a' : 'variant-b';
+    html += `<div class="mockup-variant ${cls}">
+      <div class="mockup-variant-letter">${letter}</div>
+      <div class="mockup-variant-text">
+        <div class="mockup-variant-title">${s.variantTitle}</div>
+        <div class="mockup-variant-desc">${s.variantDesc}</div>
+      </div>
+    </div>`;
+    html += `<div class="mockup-instruction">${s.instruction}</div>`;
+    if (s.mockup === 'chatGrade') html += phoneFrame('mock-chat-grade', 'Нейрум', 'проверил домашку');
+    else if (s.mockup === 'chatErrors') html += phoneFrame('mock-chat-errors', 'Нейрум', 'проверил домашку');
+    else if (s.mockup === 'chatAppeal') html += phoneFrame('mock-chat-appeal', 'Нейрум', 'проверил домашку');
+    else if (s.mockup === 'reportGrade') html += reportFrame('mock-report-grade');
+    else if (s.mockup === 'reportErrors') html += reportFrame('mock-report-errors');
+    else if (s.mockup === 'reportAppeal') html += reportFrame('mock-report-appeal');
+
+    nav.style.display = 'flex';
+    document.getElementById('btnBack').style.display = current > 1 ? '' : 'none';
+    document.getElementById('btnNext').textContent = 'Дальше';
+    document.getElementById('btnNext').disabled = true; // until interaction
+    html += '</div>';
+    app.innerHTML = html;
+
+    // Init mockup after DOM is ready
+    requestAnimationFrame(() => {
+      if (s.mockup === 'chatGrade') initMockupChatGrade();
+      else if (s.mockup === 'reportGrade') initMockupReportGrade();
+      else if (s.mockup === 'chatErrors') initMockupChatErrors();
+      else if (s.mockup === 'reportErrors') initMockupReportErrors();
+      else if (s.mockup === 'chatAppeal') initMockupChatAppeal();
+      else if (s.mockup === 'reportAppeal') initMockupReportAppeal();
+    });
+    return;
+  }
+
+  // ── Regular question ──
+  nav.style.display = 'flex';
+  document.getElementById('btnBack').style.display = current > 1 ? '' : 'none';
+  document.getElementById('btnNext').textContent = current === screens.length - 2 ? 'Отправить' : 'Дальше';
+
+  if (s.icon) html += `<div class="q-icon">${s.icon}</div>`;
+  if (s.number) html += `<div class="q-number">Вопрос ${s.number} из ${s.total}</div>`;
+  html += `<div class="q-text">${s.text}</div>`;
+  if (s.hint) html += `<div class="q-hint">${s.hint}</div>`;
+
+  const saved = answers[s.id] || {};
+
+  if (s.type === 'textarea') {
+    html += `<textarea id="input-${s.id}" placeholder="${s.placeholder||''}" oninput="onInput('${s.id}')">${saved.value||''}</textarea>`;
+  }
+  if (s.type === 'short_text') {
+    html += `<input type="text" id="input-${s.id}" placeholder="${s.placeholder||''}" value="${saved.value||''}" oninput="onInput('${s.id}')" maxlength="60">`;
+  }
+  if (s.type === 'choice') {
+    html += '<div class="choices">';
+    s.choices.forEach((c,i) => {
+      html += `<button class="choice-btn ${saved.choiceIndex===i?'selected':''}" onclick="onChoice('${s.id}',${i})">${c}</button>`;
+    });
+    html += '</div>';
+    if (s.followUp) {
+      const vis = s.followUp.triggers.includes(saved.choiceIndex) ? 'visible' : '';
+      html += `<div class="conditional-input ${vis}" id="followup-${s.id}"><div class="q-hint" style="margin-bottom:8px">${s.followUp.text}</div><textarea id="followup-input-${s.id}" placeholder="${s.followUp.placeholder||''}" oninput="onFollowUp('${s.id}')">${saved.followUp||''}</textarea></div>`;
+    }
+  }
+  if (s.type === 'multiselect') {
+    const sel = saved.selected || [];
+    html += '<div class="chips">';
+    s.options.forEach((o,i) => {
+      html += `<button class="chip ${sel.includes(i)?'selected':''}" onclick="onMulti('${s.id}',${i})">${o.label}</button>`;
+    });
+    html += '</div>';
+  }
+
+  html += '</div>';
+  app.innerHTML = html;
+  updateNextBtn();
+}
+
+// ══════════════════════════════════════
+// HANDLERS
+// ══════════════════════════════════════
+function onInput(id) {
+  if (!answers[id]) answers[id] = {};
+  answers[id].value = document.getElementById('input-'+id).value;
+  updateNextBtn();
+}
+function onChoice(id, i) {
+  const s = screens.find(s=>s.id===id);
+  if (!answers[id]) answers[id] = {};
+  answers[id].choiceIndex = i;
+  answers[id].value = s.choices[i];
+  if (s.followUp) {
+    const fu = document.getElementById('followup-'+id);
+    if (s.followUp.triggers.includes(i)) { fu.classList.add('visible'); } else { fu.classList.remove('visible'); answers[id].followUp = ''; }
+  }
+  render();
+}
+function onFollowUp(id) {
+  if (!answers[id]) answers[id] = {};
+  answers[id].followUp = document.getElementById('followup-input-'+id).value;
+}
+function onMulti(id, i) {
+  const s = screens.find(s=>s.id===id);
+  if (!answers[id]) answers[id] = {selected:[]};
+  if (!answers[id].selected) answers[id].selected = [];
+  const opt = s.options[i];
+  if (opt.exclusive) {
+    answers[id].selected = answers[id].selected.includes(i) ? [] : [i];
+  } else {
+    const excl = s.options.map((o,j)=>o.exclusive?j:-1).filter(j=>j>=0);
+    answers[id].selected = answers[id].selected.filter(j=>!excl.includes(j));
+    const p = answers[id].selected.indexOf(i);
+    if (p >= 0) answers[id].selected.splice(p,1); else answers[id].selected.push(i);
+  }
+  answers[id].value = answers[id].selected.map(j=>s.options[j].label).join(', ');
+  render();
+}
+
+function isAnswered(s) {
+  if (['welcome','finish','round_intro','mockup'].includes(s.type)) return true;
+  const a = answers[s.id];
+  if (!s.required) return true;
+  if (!a) return false;
+  if (s.type==='textarea'||s.type==='short_text') return (a.value||'').trim().length > 0;
+  if (s.type==='choice') return a.choiceIndex !== undefined;
+  if (s.type==='multiselect') return (a.selected||[]).length >= (s.minSelect||1);
+  return true;
+}
+function updateNextBtn() {
+  document.getElementById('btnNext').disabled = !isAnswered(screens[current]);
+}
+
+function goNext() {
+  const s = screens[current];
+  if (!isAnswered(s)) return;
+  if (current === screens.length - 2) { submitAnswers(); return; }
+  if (window._chatErrorCheck) clearInterval(window._chatErrorCheck);
+  current++;
+  shouldAnimate = true;
+  render();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function goBack() {
+  if (current > 1) {
+    if (window._chatErrorCheck) clearInterval(window._chatErrorCheck);
+    current--;
+    shouldAnimate = true;
+    render();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+}
+
+// ══════════════════════════════════════
+// SUBMIT
+// ══════════════════════════════════════
+async function submitAnswers() {
+  const ov = document.getElementById('sendingOverlay'); ov.classList.add('visible');
+  const data = { timestamp: new Date().toISOString() };
+  screens.forEach(s => {
+    if (['welcome','finish','round_intro','mockup'].includes(s.type)) return;
+    const a = answers[s.id] || {};
+    data[s.id] = a.value || '';
+    if (a.followUp) data[s.id + '_detail'] = a.followUp;
+  });
+  if (GOOGLE_SCRIPT_URL) {
+    try { await fetch(GOOGLE_SCRIPT_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) }); } catch(e) { saveLocal(data); }
+  } else { saveLocal(data); }
+  ov.classList.remove('visible');
+  current = screens.length - 1;
+  shouldAnimate = true;
+  render();
+}
+function saveLocal(data) {
+  const k = 'neuroom_feedback_survey';
+  const e = JSON.parse(localStorage.getItem(k)||'[]');
+  e.push(data);
+  localStorage.setItem(k, JSON.stringify(e));
+}
+
+// ── Confetti ──
+const cc = document.getElementById('confetti');
+const cx = cc.getContext('2d');
+let cp = [], cr = false;
+function resizeC(){cc.width=innerWidth;cc.height=innerHeight}
+addEventListener('resize',resizeC);resizeC();
+function launchConfetti(){
+  cp=[];const cols=['#7c5cfc','#a78bfa','#ec4899','#34d399','#f59e0b','#60a5fa'];
+  for(let i=0;i<60;i++) cp.push({x:cc.width/2+(Math.random()-.5)*120,y:cc.height*.4,vx:(Math.random()-.5)*10,vy:-8-Math.random()*10,sz:4+Math.random()*6,c:cols[Math.floor(Math.random()*cols.length)],r:Math.random()*360,rs:(Math.random()-.5)*10,l:1});
+  if(!cr){cr=true;animC();}
+}
+function animC(){
+  cx.clearRect(0,0,cc.width,cc.height);
+  cp=cp.filter(p=>p.l>0);
+  if(!cp.length){cr=false;return;}
+  cp.forEach(p=>{p.x+=p.vx;p.vy+=.3;p.y+=p.vy;p.r+=p.rs;p.l-=.008;cx.save();cx.translate(p.x,p.y);cx.rotate(p.r*Math.PI/180);cx.globalAlpha=Math.max(0,p.l);cx.fillStyle=p.c;cx.fillRect(-p.sz/2,-p.sz/4,p.sz,p.sz/2);cx.restore()});
+  requestAnimationFrame(animC);
+}
+
+// iOS keyboard scroll
+document.addEventListener('focusin',e=>{
+  if(e.target.matches('textarea,input[type="text"]')) setTimeout(()=>e.target.scrollIntoView({behavior:'smooth',block:'center'}),300);
+});
+
+render();
+</script>
+</body>
+</html>
