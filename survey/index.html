@@ -117,16 +117,15 @@ input[type="text"]::placeholder{color:var(--text-dim);letter-spacing:0}
 .round-badge{display:inline-block;background:var(--accent);color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:.5px;text-transform:uppercase}
 .round-title{font-size:20px;font-weight:800;line-height:1.3;text-align:center}
 .round-desc{font-size:14px;color:var(--text-dim);text-align:center;line-height:1.6}
-.round-typewriter{
-  font-size:16px;color:var(--text);text-align:center;line-height:1.6;font-weight:500;
-  min-height:80px;
+/* ── Word-by-word reveal ── */
+.reveal-text{
+  font-size:16px;color:var(--text);text-align:center;line-height:1.7;font-weight:500;
+  min-height:60px;
 }
-.round-typewriter .tw-cursor{
-  display:inline-block;width:2px;height:1em;background:var(--accent-light);
-  vertical-align:text-bottom;margin-left:2px;
-  animation:twBlink .6s step-end infinite;
+.reveal-text .rw{
+  display:inline;opacity:0;transition:opacity .25s ease;
 }
-@keyframes twBlink{0%,100%{opacity:1}50%{opacity:0}}
+.reveal-text .rw.visible{opacity:1}
 
 /* ══ Phone mockup ══ */
 .phone-frame{
@@ -311,23 +310,20 @@ function reportFrame(bodyId) {
 }
 
 // ══════════════════════════════════════
-// TYPEWRITER
+// WORD-BY-WORD REVEAL
 // ══════════════════════════════════════
-function typewrite(el, text, onDone, speed) {
-  speed = speed || 30;
-  el.innerHTML = '<span class="tw-cursor"></span>';
+function revealWords(el, text, onDone) {
+  const words = text.split(' ');
+  el.innerHTML = words.map(w => `<span class="rw">${w} </span>`).join('');
+  const spans = el.querySelectorAll('.rw');
   let i = 0;
-  const cursor = el.querySelector('.tw-cursor');
-  function tick() {
-    if (i >= text.length) {
-      cursor.remove();
-      if (onDone) onDone();
-      return;
-    }
-    cursor.insertAdjacentText('beforebegin', text[i++]);
-    setTimeout(tick, text[i-1] === '.' || text[i-1] === ',' || text[i-1] === '—' ? speed * 4 : speed);
+  function next() {
+    if (i >= spans.length) { if (onDone) onDone(); return; }
+    spans[i].classList.add('visible');
+    i++;
+    setTimeout(next, 120);
   }
-  tick();
+  setTimeout(next, 300);
 }
 
 // ══════════════════════════════════════
@@ -381,11 +377,11 @@ function autoPlayChat(bodyId, msgs, onDone) {
 // ══════════════════════════════════════
 function initMockupChatGrade() {
   autoPlayChat('mock-chat-grade', [
-    {type:'bot', text:'Привет! &#128075; Посмотрел твою домашку по предмету «Математика».'},
-    {type:'bot', text:'Начну с хорошего:'},
-    {type:'bot', text:'Уверенное выполнение умножения и деления десятичных дробей!'},
+    {type:'bot', text:'Привет! &#128075; Посмотрел твою домашку по предмету «Алгебра».'},
+    {type:'bot', text:'Вижу, что ты взялся за все задания — это уже хорошо!'},
     {type:'sep', text:'Разбор работы'},
-    {type:'grade', grade:4, label:'Оценка за работу', text:'Неплохо, но можно лучше!'},
+    {type:'bot', text:'Давай разберём ошибки по порядку. Основная проблема — знаки при вынесении множителя за скобку.'},
+    {type:'grade', grade:2, label:'Оценка за работу', text:'Давай разберёмся вместе — всё получится!'},
   ]);
 }
 
@@ -399,16 +395,16 @@ function initMockupReportGrade() {
     <div class="r-score">
       <div class="r-score-grade">
         <div class="r-score-grade-label">Твоя оценка</div>
-        <div class="r-score-grade-val">4</div>
+        <div class="r-score-grade-val" style="background:#ff7070">2</div>
       </div>
       <div class="r-score-text">
-        <strong>Так держать &#128077;</strong>
-        Уверенное выполнение умножения и деления десятичных дробей на целые числа!
+        <strong>Нужно разобраться &#128170;</strong>
+        Основная проблема — знаки при вынесении множителя за скобку. Давай разберём по порядку.
       </div>
     </div>
     <div class="r-feedback">
       <h3>Обратная связь по работе</h3>
-      <p>Работа выполнена очень хорошо! Чтобы избежать подобных ошибок, советую после формулы проговаривать каждый шаг.</p>
+      <p>Вижу, что ты взялся за все задания. Но есть серьёзные ошибки в знаках при группировке. Советую после решения проверять ответ обратным раскрытием скобок.</p>
     </div>
   `;
   setTimeout(() => { document.getElementById('btnNext').disabled = false; }, 2500);
@@ -422,36 +418,37 @@ function initMockupChatErrors() {
   const body = document.getElementById('mock-chat-errors');
   if (!body) return;
   body.innerHTML = `
+    <div class="m-grade" style="margin-bottom:4px"><div class="m-grade-circle g4">4</div><div class="m-grade-text"><strong>Оценка за работу</strong>Молодец! Почти всё верно.</div></div>
     <div class="m-bot">Есть 2 момента, на которые стоит обратить внимание:</div>
     <div class="m-mistake" id="cm1">
       <div class="m-mistake-hdr" onclick="toggleMistake('cm1')">
-        <div class="m-mistake-icon critical">!</div>
-        <div class="m-mistake-title">Ошибка в умножении</div>
+        <div class="m-mistake-icon minor">~</div>
+        <div class="m-mistake-title">Небольшая помарка</div>
         <div class="m-mistake-chevron">&#9660;</div>
       </div>
       <div class="m-mistake-body">
         <div class="m-mistake-content">
-          При умножении одночлена на многочлен нужно умножить на каждый член.
+          Ты правильно написал слово, но немного исправил букву. Старайся писать сразу чисто.
           <div class="m-mistake-diff">В твоем ответе:</div>
-          <div class="m-mistake-was">-0,5c&#178;(2c-3) = (-0,5c&#179; - c + 1,5c&#178;)</div>
+          <div class="m-mistake-was">неловкость (исправление)</div>
           <div class="m-mistake-diff">Как должно быть:</div>
-          <div class="m-mistake-now">-0,5c&#178;(2c-3) = -c&#179; + 1,5c&#178;</div>
+          <div class="m-mistake-now">неловкость</div>
         </div>
       </div>
     </div>
     <div class="m-mistake" id="cm2">
       <div class="m-mistake-hdr" onclick="toggleMistake('cm2')">
-        <div class="m-mistake-icon major">&#9679;</div>
-        <div class="m-mistake-title">Ошибка при переписывании</div>
+        <div class="m-mistake-icon minor">~</div>
+        <div class="m-mistake-title">Потерялся предлог</div>
         <div class="m-mistake-chevron">&#9660;</div>
       </div>
       <div class="m-mistake-body">
         <div class="m-mistake-content">
-          Неверно переписанный член выражения привел к неверному результату.
+          Пропущено слово «У» в начале предложения.
           <div class="m-mistake-diff">В твоем ответе:</div>
-          <div class="m-mistake-was">(2a&#178; - b)(3-a) = (2a&#178; - 2b&#178;)(3-a)</div>
+          <div class="m-mistake-was">Него всё валилось...</div>
           <div class="m-mistake-diff">Как должно быть:</div>
-          <div class="m-mistake-now">(2a&#178; - b)(3-a) = 6a&#178; - 2a&#179; - 3b + ab</div>
+          <div class="m-mistake-now">У него всё валилось...</div>
         </div>
       </div>
     </div>
@@ -479,6 +476,16 @@ function initMockupReportErrors() {
   const body = document.getElementById('mock-report-errors');
   if (!body) return;
   body.innerHTML = `
+    <div class="r-score" style="margin-bottom:6px">
+      <div class="r-score-grade">
+        <div class="r-score-grade-label">Твоя оценка</div>
+        <div class="r-score-grade-val" style="background:#66bb6a">4</div>
+      </div>
+      <div class="r-score-text">
+        <strong>Молодец &#128077;</strong>
+        Почти всё написано верно. Две мелкие помарки.
+      </div>
+    </div>
     <div style="font-size:14px;font-weight:700;color:#232323;padding:4px 0">Разбор ошибок</div>
     <div class="r-error-card">
       <div class="r-error-page">
@@ -486,27 +493,27 @@ function initMockupReportErrors() {
         <div class="r-error-badge">Ошибок: 2</div>
       </div>
       <div class="r-error-item">
-        <div class="r-error-num">1. Ошибка в умножении одночленов: №701г</div>
-        <div class="r-error-desc">При умножении одночлена на многочлен нужно умножить на каждый член многочлена.</div>
+        <div class="r-error-num">1. Небольшая помарка: Стр. 1</div>
+        <div class="r-error-desc">Ты правильно написал слово, но немного исправил букву.</div>
         <div class="r-error-block student">
           <div class="r-error-block-label">Ошибка ученика</div>
-          <div class="r-error-block-val">-0,5c&#178;(2c-3) = (-0,5c&#179; - c + 1,5c&#178;)</div>
+          <div class="r-error-block-val">неловкость (исправление)</div>
         </div>
         <div class="r-error-block correct">
           <div class="r-error-block-label">Правильный ответ</div>
-          <div class="r-error-block-val">-0,5c&#178;(2c-3) = -c&#179; + 1,5c&#178;</div>
+          <div class="r-error-block-val">неловкость</div>
         </div>
       </div>
       <div class="r-error-item">
-        <div class="r-error-num">2. Ошибка при переписывании: №701д</div>
-        <div class="r-error-desc">Неверно переписанный член выражения привел к неверному результату.</div>
+        <div class="r-error-num">2. Потерялся предлог: Стр. 1</div>
+        <div class="r-error-desc">Пропущено слово «У» в начале предложения.</div>
         <div class="r-error-block student">
           <div class="r-error-block-label">Ошибка ученика</div>
-          <div class="r-error-block-val">(2a&#178; - b)(3-a) = (2a&#178; - 2b&#178;)(3-a)</div>
+          <div class="r-error-block-val">Него всё валилось...</div>
         </div>
         <div class="r-error-block correct">
           <div class="r-error-block-label">Правильный ответ</div>
-          <div class="r-error-block-val">(2a&#178; - b)(3-a) = 6a&#178; - 2a&#179; - 3b + ab</div>
+          <div class="r-error-block-val">У него всё валилось...</div>
         </div>
       </div>
     </div>
@@ -522,18 +529,19 @@ function initMockupChatAppeal() {
   const body = document.getElementById('mock-chat-appeal');
   if (!body) return;
   body.innerHTML = `
+    <div class="m-grade" style="margin-bottom:4px"><div class="m-grade-circle g3">3</div><div class="m-grade-text"><strong>Оценка за работу</strong>Неплохо, но можно лучше!</div></div>
     <div class="m-mistake expanded" id="ca1">
       <div class="m-mistake-hdr">
         <div class="m-mistake-icon critical">!</div>
-        <div class="m-mistake-title">Ошибка в умножении</div>
+        <div class="m-mistake-title">Безударная гласная в корне</div>
       </div>
       <div class="m-mistake-body" style="max-height:250px">
         <div class="m-mistake-content">
-          При умножении одночлена на многочлен нужно умножить на каждый член.
+          Слово «корова» — словарное, его нужно запомнить.
           <div class="m-mistake-diff">В твоем ответе:</div>
-          <div class="m-mistake-was">-0,5c&#178;(2c-3) = (-0,5c&#179; - c + 1,5c&#178;)</div>
+          <div class="m-mistake-was">карова</div>
           <div class="m-mistake-diff">Как должно быть:</div>
-          <div class="m-mistake-now">-0,5c&#178;(2c-3) = -c&#179; + 1,5c&#178;</div>
+          <div class="m-mistake-now">корова</div>
           <button class="m-appeal-btn" id="appealBtn1" onclick="doChatAppeal()">Оспорить ошибку</button>
         </div>
       </div>
@@ -550,7 +558,7 @@ function doChatAppeal() {
   btn.style.opacity = '.5';
   document.getElementById('appealHint').remove();
   // Student message
-  const sm = document.createElement('div'); sm.className = 'm-student'; sm.textContent = 'Хочу оспорить: «Ошибка в умножении»';
+  const sm = document.createElement('div'); sm.className = 'm-student'; sm.textContent = 'Хочу оспорить: «Безударная гласная»';
   body.appendChild(sm);
   body.scrollTop = body.scrollHeight;
   // Pending
@@ -579,14 +587,24 @@ function initMockupReportAppeal() {
   const body = document.getElementById('mock-report-appeal');
   if (!body) return;
   body.innerHTML = `
+    <div class="r-score" style="margin-bottom:6px">
+      <div class="r-score-grade">
+        <div class="r-score-grade-label">Твоя оценка</div>
+        <div class="r-score-grade-val" style="background:#ffb347">3</div>
+      </div>
+      <div class="r-score-text">
+        <strong>Неплохо, но можно лучше</strong>
+        Повтори правила на безударные гласные.
+      </div>
+    </div>
     <div class="r-error-card">
       <div class="r-error-page">
         <div class="r-error-page-title">Страница 1</div>
-        <div class="r-error-badge">Ошибок: 2</div>
+        <div class="r-error-badge">Ошибок: 3</div>
       </div>
       <div class="r-error-item">
-        <div class="r-error-num">1. Ошибка в умножении одночленов: №701г</div>
-        <div class="r-error-desc">При умножении одночлена на многочлен нужно умножить на каждый член.</div>
+        <div class="r-error-num">1. Безударная гласная в корне</div>
+        <div class="r-error-desc">Слово «корова» — словарное, его нужно запомнить.</div>
         <button class="r-dispute-btn" id="reportDisputeBtn" onclick="doReportAppeal()">&#9888; Я не согласен</button>
         <div style="clear:both"></div>
         <div id="reportAppealResult"></div>
@@ -710,7 +728,7 @@ function render() {
       <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:16px;text-align:center">
         <div class="round-badge">${s.round}</div>
         <div class="round-title">${s.title}</div>
-        <div class="round-typewriter" id="typewriterTarget"></div>
+        <div class="reveal-text" id="revealTarget"></div>
       </div>`;
     nav.style.display = 'flex';
     document.getElementById('btnBack').style.display = current > 1 ? '' : 'none';
@@ -718,8 +736,7 @@ function render() {
     document.getElementById('btnNext').disabled = true;
     html += '</div>';
     app.innerHTML = html;
-    // Typewriter effect
-    typewrite(document.getElementById('typewriterTarget'), s.desc, () => {
+    revealWords(document.getElementById('revealTarget'), s.desc, () => {
       document.getElementById('btnNext').disabled = false;
     });
     return;
