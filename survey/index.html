@@ -169,8 +169,16 @@ input[type="text"]::placeholder{color:var(--text-dim);letter-spacing:0}
 .mockup-variant-title{font-size:16px;font-weight:700;color:#fff}
 .mockup-variant-desc{font-size:12px;color:rgba(255,255,255,.7);margin-top:2px}
 .mockup-instruction{
-  text-align:center;font-size:12px;color:var(--text-dim);margin-bottom:6px;
+  text-align:center;font-size:14px;font-weight:600;color:var(--accent-light);
+  margin-bottom:6px;padding:8px 14px;
+  background:rgba(124,92,252,.1);border:1.5px solid rgba(124,92,252,.25);
+  border-radius:12px;
 }
+.mockup-instruction .mi-arrow{
+  display:inline-block;animation:miPulse 1.5s ease-in-out infinite;margin-right:4px;
+}
+@keyframes miPulse{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
+.mockup-instruction.shake{animation:hintShake .5s ease-out}
 
 /* ── Typing indicator ── */
 .m-typing{max-width:60px;padding:10px 16px;border-radius:14px;border-bottom-left-radius:4px;background:#f8f8f8;align-self:flex-start;display:flex;gap:4px}
@@ -478,7 +486,9 @@ input[type="text"]::placeholder{color:var(--text-dim);letter-spacing:0}
 }
 
 /* ── Tap hint pulse ── */
-.tap-hint{text-align:center;font-size:12px;color:var(--accent-light);font-weight:600;animation:pulse 2s ease-in-out infinite;margin-top:4px;padding:6px 12px;background:rgba(124,92,252,.08);border-radius:10px}
+.tap-hint{text-align:center;font-size:13px;color:#7457fe;font-weight:700;animation:pulse 2s ease-in-out infinite;margin-top:6px;padding:8px 14px;background:rgba(116,87,254,.12);border:1.5px solid rgba(116,87,254,.3);border-radius:10px}
+.tap-hint.shake{animation:hintShake .5s ease-out}
+@keyframes hintShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
 @keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
 .done-badge{text-align:center;font-size:13px;color:var(--success);font-weight:600;padding:8px 0}
 
@@ -533,7 +543,7 @@ input[type="text"]::placeholder{color:var(--text-dim);letter-spacing:0}
   .mockup-variant-letter{width:34px;height:34px;font-size:17px;border-radius:10px}
   .mockup-variant-title{font-size:14px}
   .mockup-variant-desc{font-size:11px}
-  .mockup-instruction{font-size:11px;margin-bottom:4px}
+  .mockup-instruction{font-size:13px;margin-bottom:4px;padding:7px 12px}
 
   /* Chat messages — slightly smaller */
   .m-bot,.m-student{font-size:12px;padding:7px 10px;border-radius:12px}
@@ -1123,7 +1133,7 @@ function render() {
         <div class="mockup-variant-desc">${s.variantDesc}</div>
       </div>
     </div>`;
-    html += `<div class="mockup-instruction">${s.instruction}</div>`;
+    html += `<div class="mockup-instruction"><span class="mi-arrow">&#11015;</span>${s.instruction}</div>`;
     if (s.mockup === 'chatGrade') html += phoneFrame('mock-chat-grade', 'Нейрум', 'проверил домашку');
     else if (s.mockup === 'chatErrors') html += phoneFrame('mock-chat-errors', 'Нейрум', 'проверил домашку');
     else if (s.mockup === 'chatAppeal') html += phoneFrame('mock-chat-appeal', 'Нейрум', 'проверил домашку');
@@ -1312,6 +1322,20 @@ function animC(){
   cp.forEach(p=>{p.x+=p.vx;p.vy+=.3;p.y+=p.vy;p.r+=p.rs;p.l-=.008;cx.save();cx.translate(p.x,p.y);cx.rotate(p.r*Math.PI/180);cx.globalAlpha=Math.max(0,p.l);cx.fillStyle=p.c;cx.fillRect(-p.sz/2,-p.sz/4,p.sz,p.sz/2);cx.restore()});
   requestAnimationFrame(animC);
 }
+
+// Disabled button tap — shake the hint to show what to do
+document.getElementById('btnNext').addEventListener('click', () => {
+  const btn = document.getElementById('btnNext');
+  if (!btn.disabled) return;
+  // Find hint inside the phone mockup or instruction above it
+  const hint = document.querySelector('.tap-hint') || document.querySelector('.mockup-instruction');
+  if (hint) {
+    hint.classList.remove('shake');
+    void hint.offsetWidth; // force reflow
+    hint.classList.add('shake');
+    hint.scrollIntoView({behavior:'smooth', block:'center'});
+  }
+});
 
 // iOS keyboard handling — move nav above keyboard
 let keyboardOpen = false;
