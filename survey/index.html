@@ -761,9 +761,7 @@ function reportHTML(grade, opts) {
     4:'Уверенное выполнение умножения и деления десятичных дробей на целые числа и на разрядные единицы!',
   };
   const bg = gradeColors[grade] || '#6240ff';
-  const disputeId = opts.disputeId || '';
-  const disputeOnclick = disputeId ? ` id="${disputeId}" onclick="doReportAppeal()"` : '';
-  const resultDiv = opts.appealResult ? '<div id="reportAppealResult"></div>' : '';
+  const interactive = opts.appealResult;
   const hint = opts.hint || '';
 
   return `
@@ -795,7 +793,7 @@ function reportHTML(grade, opts) {
         <div class="r-error-item">
           <div class="r-error-item-top">
             <p class="r-error-num">1. Ошибка в умножении одночленов: №701г</p>
-            <button class="r-dispute-btn"${disputeOnclick} type="button">Я не согласен</button>
+            <button class="r-dispute-btn${interactive ? ' r-dispute-live' : ''}" type="button"${interactive ? ' onclick="doReportAppeal(this)"' : ''}>Я не согласен</button>
           </div>
           <p class="r-error-desc">При умножении одночлена на многочлен нужно умножить этот одночлен на каждый член многочлена. При умножении степеней с одинаковым основанием их показатели складываются.</p>
           <div class="r-error-block student">
@@ -806,12 +804,12 @@ function reportHTML(grade, opts) {
             <div class="r-error-block-label">Правильный ответ</div>
             <div class="r-error-block-val">-0,5c&sup2;(2c-3) = -0,5c&sup2; &times; 2c - 0,5c&sup2; &times; (-3) = -c&sup3; + 1,5c&sup2;</div>
           </div>
-          ${resultDiv}
+          ${interactive ? '<div class="r-appeal-result-slot"></div>' : ''}
         </div>
         <div class="r-error-item">
           <div class="r-error-item-top">
             <p class="r-error-num">2. Ошибка при переписывании: №701д</p>
-            <button class="r-dispute-btn" type="button">Я не согласен</button>
+            <button class="r-dispute-btn${interactive ? ' r-dispute-live' : ''}" type="button"${interactive ? ' onclick="doReportAppeal(this)"' : ''}>Я не согласен</button>
           </div>
           <p class="r-error-desc">Неверно переписанный член выражения привел к неверному результату.</p>
           <div class="r-error-block student">
@@ -822,6 +820,7 @@ function reportHTML(grade, opts) {
             <div class="r-error-block-label">Правильный ответ</div>
             <div class="r-error-block-val">(2a&sup2; - b)(3-a) = 6a&sup2; - 2a&sup3; - 3b + ab</div>
           </div>
+          ${interactive ? '<div class="r-appeal-result-slot"></div>' : ''}
         </div>
       </div>
       <div class="r-page-collapsed">
@@ -988,21 +987,22 @@ function initMockupReportAppeal() {
   const body = document.getElementById('mock-report-appeal');
   if (!body) return;
   body.innerHTML = reportHTML(3, {
-    disputeId: 'reportDisputeBtn',
     appealResult: true,
-    hint: '<div class="tap-hint" id="reportAppealHint">&#128072; Нажми «Я не согласен»</div>'
+    hint: '<div class="tap-hint" id="reportAppealHint">&#128072; Нажми любую кнопку «Я не согласен»</div>'
   });
 }
 
-function doReportAppeal() {
-  const btn = document.getElementById('reportDisputeBtn');
+function doReportAppeal(btn) {
   if (!btn || btn.dataset.done) return;
   btn.dataset.done = '1';
   btn.style.opacity = '.5';
+  // Insert result right after the button's error item
+  const slot = btn.closest('.r-error-item').querySelector('.r-appeal-result-slot');
+  if (slot) {
+    slot.innerHTML = '<div class="r-appeal-result"><strong style="display:block;margin-bottom:3px">&#10003; Запрос отправлен</strong>Учитель рассмотрит обращение в течение 72 часов</div>';
+  }
   const hint = document.getElementById('reportAppealHint');
   if (hint) hint.remove();
-  const res = document.getElementById('reportAppealResult');
-  res.innerHTML = '<div class="r-appeal-result"><strong style="display:block;margin-bottom:3px">&#10003; Запрос отправлен</strong>Учитель рассмотрит обращение в течение 72 часов</div>';
   document.getElementById('btnNext').disabled = false;
 }
 
