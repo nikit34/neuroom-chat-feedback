@@ -208,31 +208,274 @@ input[type="text"]::placeholder{color:var(--text-dim);letter-spacing:0}
 .m-cta button{display:flex;align-items:center;gap:6px;padding:10px 16px;border-radius:14px;border-bottom-left-radius:4px;border:none;background:linear-gradient(135deg,#7457fe,#9b7dff);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;width:100%}
 
 /* ── Report mockup ── */
-.r-score{background:#fbf8ff;border:1px solid #ededf6;border-radius:16px;padding:16px;display:flex;gap:16px;align-items:center}
-.r-score-grade{background:#fff;border-radius:16px;padding:16px 20px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.06)}
-.r-score-grade-label{font-size:12px;font-weight:500;color:#272443;margin-bottom:6px}
-.r-score-grade-val{background:#6240ff;color:#fff;border-radius:8px;padding:6px 14px;font-size:16px;font-weight:700;display:inline-block}
-.r-score-text{flex:1;font-size:12px;line-height:1.5;color:#333435}
-.r-score-text strong{display:block;font-size:14px;color:#272443;margin-bottom:4px}
-.r-feedback{background:#fff;border:1px solid #ededf6;border-radius:16px;padding:16px}
-.r-feedback h3{font-size:14px;font-weight:600;color:#272443;margin-bottom:8px}
-.r-feedback p{font-size:12px;color:#333435;line-height:1.5}
-.r-error-card{background:#fff;border:1px solid #ededf6;border-radius:16px;overflow:hidden}
-.r-error-page{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid #ededf6}
-.r-error-page-title{font-size:13px;font-weight:600;color:#272443}
-.r-error-badge{background:#7457fe;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px}
-.r-error-item{padding:14px;border-bottom:1px solid #f2f2f2}
-.r-error-item:last-child{border-bottom:none}
-.r-error-num{font-size:12px;font-weight:600;color:#272443;margin-bottom:6px}
-.r-error-desc{font-size:11px;color:#333435;line-height:1.4;margin-bottom:8px}
-.r-error-block{border-radius:12px;padding:12px;margin-bottom:6px}
+.report-phone .phone-body{
+  background:#f8fafc;
+  gap:12px;
+  padding:12px;
+}
+.report-phone .phone-input-bar{display:none}
+.report-phone__header{padding:8px 12px 10px}
+.report-back-btn{
+  width:32px;height:32px;border-radius:10px;border:1px solid #ededf6;background:#fff;
+  color:#7a7f82;font-size:16px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;padding:0;line-height:1;
+}
+.report-subhead{font-size:11px;color:#7a7f82}
+
+.r-screen{display:flex;flex-direction:column;gap:12px}
+.r-score{
+  background:#fbf8ff;
+  border:1px solid #ededf6;
+  border-radius:20px;
+  padding:14px;
+  display:flex;
+  gap:14px;
+  align-items:stretch;
+}
+.r-score-grade{
+  min-width:110px;
+  background:#fff;
+  border-radius:16px;
+  box-shadow:0 4px 20px rgba(139,139,139,.12);
+  padding:14px 12px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+}
+.r-score-grade-label{font-size:11px;line-height:1.3;font-weight:500;color:#272443;text-align:center}
+.r-score-grade-val{
+  width:44px;height:44px;border-radius:10px;
+  background:#6240ff;color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:23px;font-weight:500;line-height:1;
+}
+.r-score-text{
+  flex:1;
+  font-size:13px;
+  line-height:1.45;
+  color:#333435;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:8px;
+}
+.r-score-text strong{display:block;font-size:16px;font-weight:500;line-height:1.35;color:#232323}
+
+.r-feedback{
+  background:#fff;
+  border:1px solid #ededf6;
+  border-radius:20px;
+  padding:14px;
+}
+.r-feedback h3{
+  font-size:14px;
+  line-height:1.3;
+  font-weight:500;
+  color:#232323;
+  margin-bottom:8px;
+}
+.r-feedback p{
+  font-size:12px;
+  color:#333435;
+  line-height:1.45;
+  margin:0;
+}
+
+.r-section-title{
+  font-size:18px;
+  font-weight:500;
+  line-height:1.35;
+  color:#232323;
+  margin-top:2px;
+}
+
+.r-pages-card{
+  background:#fff;
+  border:1px solid #ededf6;
+  border-radius:20px;
+  box-shadow:0 4px 20px rgba(139,139,139,.08);
+  padding:14px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.r-pages-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.r-pages-head-title{
+  font-size:14px;
+  font-weight:500;
+  color:#232323;
+}
+.r-pages-head-right{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.r-pages-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 10px;
+  border:1px solid #ededf6;
+  border-radius:10px;
+  background:#fff;
+  font-size:12px;
+  font-weight:500;
+  color:#232323;
+  white-space:nowrap;
+}
+.r-pages-chip--error::before{content:"⨂";font-size:10px;color:#ef4444}
+.r-pages-chip--ok::before{content:"✓";font-size:11px;color:#10b981}
+.r-pages-toggle{
+  width:28px;height:28px;
+  border:1px solid #ededf6;
+  border-radius:10px;
+  background:#fff;
+  color:#7a7f82;
+  font-size:12px;
+  display:flex;align-items:center;justify-content:center;
+  padding:0;
+  cursor:pointer;
+}
+.r-pages-divider{
+  height:1px;
+  width:100%;
+  background:#ededf6;
+}
+
+.r-error-item{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.r-error-item + .r-error-item{
+  border-top:1px solid #ededf6;
+  padding-top:14px;
+}
+.r-error-item-top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.r-error-num{
+  font-size:14px;
+  line-height:1.4;
+  font-weight:500;
+  color:#232323;
+  margin:0;
+}
+.r-error-desc{
+  font-size:12px;
+  line-height:1.45;
+  color:#333435;
+  margin:0;
+}
+.r-dispute-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:8px 12px;
+  border-radius:10px;
+  border:1px solid #ededf6;
+  background:#fff;
+  font-size:12px;
+  font-weight:500;
+  line-height:1;
+  color:#232323;
+  cursor:pointer;
+  font-family:inherit;
+  white-space:nowrap;
+}
+.r-dispute-btn::before{content:"ⓘ";font-size:11px;color:#7a7f82}
+
+.r-error-block{
+  border-radius:14px;
+  padding:12px;
+  margin:0;
+}
 .r-error-block.student{background:rgba(255,213,209,.2)}
 .r-error-block.correct{background:#fbf8ff}
-.r-error-block-label{font-size:11px;font-weight:600;margin-bottom:4px}
+.r-error-block-label{
+  font-size:12px;
+  line-height:1.2;
+  font-weight:500;
+  margin-bottom:6px;
+}
 .r-error-block.student .r-error-block-label{color:#b91c1b}
 .r-error-block.correct .r-error-block-label{color:#7455ff}
-.r-error-block-val{font-size:12px;color:#232323}
-.r-dispute-btn{display:flex;align-items:center;gap:4px;padding:6px 12px;border-radius:8px;border:1px solid #ededf6;background:#fff;font-size:11px;font-weight:600;color:#272443;cursor:pointer;font-family:inherit;margin-top:4px;float:right}
+.r-error-block-val{
+  font-size:12px;
+  line-height:1.45;
+  color:#232323;
+}
+
+.r-photo-wrap{
+  width:100%;
+  max-width:200px;
+  height:260px;
+  border-radius:16px;
+  border:2px solid #fff;
+  overflow:hidden;
+  position:relative;
+  margin-top:2px;
+}
+.r-photo-wrap img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.r-photo-expand{
+  position:absolute;
+  right:10px;
+  bottom:10px;
+  width:26px;
+  height:26px;
+  border-radius:8px;
+  border:1px solid #ededf6;
+  background:#fff;
+  color:#7a7f82;
+  font-size:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0;
+}
+.r-photo-highlight{
+  position:absolute;
+  left:6px;
+  top:106px;
+  width:84px;
+  height:70px;
+  border-radius:10px;
+  border:1px solid #b91c1b;
+  background:rgba(185,28,27,.1);
+}
+
+.r-page-collapsed{
+  background:#fff;
+  border:1px solid #ededf6;
+  border-radius:14px;
+  padding:10px 12px;
+}
+
+.r-appeal-result{
+  margin-top:8px;
+  padding:10px;
+  border-radius:12px;
+  background:#e6f9f0;
+  border:1.5px solid #b3e5d1;
+  font-size:11px;
+  color:#272443;
+  line-height:1.35;
+}
 
 /* ── Tap hint pulse ── */
 .tap-hint{text-align:center;font-size:12px;color:var(--accent-light);font-weight:600;animation:pulse 2s ease-in-out infinite;margin-top:4px;padding:6px 12px;background:rgba(124,92,252,.08);border-radius:10px}
@@ -252,6 +495,116 @@ input[type="text"]::placeholder{color:var(--text-dim);letter-spacing:0}
 .halfway-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);background:linear-gradient(135deg,#7c5cfc,#ec4899);color:#fff;font-size:14px;font-weight:700;padding:10px 20px;border-radius:30px;z-index:150;pointer-events:none;white-space:nowrap;box-shadow:0 8px 30px rgba(124,92,252,.4)}
 .halfway-toast.show{animation:ts 2.5s cubic-bezier(.2,.8,.3,1) forwards}
 @keyframes ts{0%{transform:translateX(-50%) translateY(-100px);opacity:0}15%{transform:translateX(-50%) translateY(0);opacity:1}80%{transform:translateX(-50%) translateY(0);opacity:1}100%{transform:translateX(-50%) translateY(-100px);opacity:0}}
+
+/* ── Mobile: iPhone 11 (414×896) ── */
+@media (max-width:430px) {
+  .app{padding:10px 14px 120px;padding-top:calc(env(safe-area-inset-top,0)+8px)}
+  .screen{gap:12px}
+  .q-icon{font-size:36px}
+  .q-text{font-size:18px}
+  .q-hint{font-size:12px}
+  .welcome-icon{font-size:50px;margin-top:10px}
+  .welcome-title{font-size:20px}
+  .welcome-sub{font-size:13px}
+  .finish-icon{font-size:52px;margin-top:24px}
+  .finish-title{font-size:22px}
+  .round-title{font-size:18px}
+  .reveal-text{font-size:15px;min-height:50px}
+
+  /* Phone mockup — fit on screen */
+  .phone-frame{
+    max-width:100%;
+    aspect-ratio:auto;
+    height:calc(100dvh - 230px);
+    height:calc(100svh - 230px);
+    border-radius:24px;
+    border-width:2px;
+  }
+  .phone-status{padding:6px 16px 2px;font-size:11px}
+  .phone-header{padding:4px 12px 6px;gap:6px}
+  .phone-header-avatar{width:26px;height:26px;font-size:12px}
+  .phone-header-name{font-size:13px}
+  .phone-header-sub{font-size:10px}
+  .phone-body{padding:10px;gap:5px}
+  .phone-input-bar{padding:6px 10px 14px}
+
+  /* Variant badge — compact */
+  .mockup-variant{padding:10px 14px;gap:10px;margin-bottom:4px;border-radius:12px}
+  .mockup-variant-letter{width:34px;height:34px;font-size:17px;border-radius:10px}
+  .mockup-variant-title{font-size:14px}
+  .mockup-variant-desc{font-size:11px}
+  .mockup-instruction{font-size:11px;margin-bottom:4px}
+
+  /* Chat messages — slightly smaller */
+  .m-bot,.m-student{font-size:12px;padding:7px 10px;border-radius:12px}
+  .m-bot{border-bottom-left-radius:3px}
+  .m-student{border-bottom-right-radius:3px}
+  .m-grade{padding:8px 10px;gap:8px;border-radius:12px;border-bottom-left-radius:3px}
+  .m-grade-circle{width:32px;height:32px;font-size:14px}
+  .m-grade-text{font-size:11px}
+  .m-grade-text strong{font-size:10px}
+  .m-mistake{border-radius:12px;border-bottom-left-radius:3px}
+  .m-mistake-hdr{padding:6px 10px}
+  .m-mistake-title{font-size:12px}
+  .m-mistake-content{font-size:10px;padding:0 10px 8px}
+  .m-mistake-was,.m-mistake-now{font-size:10px}
+  .m-appeal-btn{font-size:10px;padding:4px 8px}
+  .m-typing{padding:8px 14px}
+  .m-typing span{width:5px;height:5px}
+  .m-sep{font-size:9px}
+
+  /* Report — smaller */
+  .report-phone .phone-body{padding:10px;gap:10px}
+  .report-phone__header{padding:6px 10px 8px}
+  .report-back-btn{width:28px;height:28px;border-radius:8px;font-size:14px}
+  .r-screen{gap:10px}
+  .r-score{padding:12px;gap:10px;border-radius:16px}
+  .r-score-grade{min-width:92px;padding:10px 8px;border-radius:12px;gap:8px}
+  .r-score-grade-label{font-size:10px}
+  .r-score-grade-val{width:38px;height:38px;border-radius:8px;font-size:19px}
+  .r-score-text{font-size:11px;gap:6px}
+  .r-score-text strong{font-size:14px}
+  .r-feedback{padding:12px;border-radius:16px}
+  .r-feedback h3{font-size:13px;margin-bottom:6px}
+  .r-feedback p{font-size:11px}
+  .r-section-title{font-size:16px}
+  .r-pages-card{padding:12px;border-radius:16px;gap:10px}
+  .r-pages-head-title{font-size:13px}
+  .r-pages-chip{font-size:11px;padding:5px 8px;border-radius:8px}
+  .r-pages-toggle{width:24px;height:24px;border-radius:8px}
+  .r-error-item{gap:6px}
+  .r-error-item + .r-error-item{padding-top:12px}
+  .r-error-num{font-size:13px}
+  .r-error-desc{font-size:11px}
+  .r-dispute-btn{font-size:11px;padding:7px 10px;border-radius:8px}
+  .r-error-block{padding:10px;border-radius:12px}
+  .r-error-block-label{font-size:11px;margin-bottom:4px}
+  .r-error-block-val{font-size:11px}
+  .r-photo-wrap{max-width:160px;height:210px;border-radius:14px}
+  .r-photo-expand{width:24px;height:24px;border-radius:7px}
+  .r-photo-highlight{left:5px;top:84px;width:66px;height:56px}
+  .r-page-collapsed{padding:9px 10px;border-radius:12px}
+
+  /* Nav */
+  .nav{padding:10px 14px;padding-bottom:calc(env(safe-area-inset-bottom,0)+10px)}
+  .nav-btn{padding:14px 16px;font-size:15px;border-radius:12px;min-height:46px}
+
+  /* Inputs */
+  textarea{min-height:80px;font-size:16px;padding:12px}
+  .choice-btn{padding:12px 14px;font-size:14px}
+  .chip{padding:10px 12px;font-size:13px}
+  .tap-hint{font-size:11px;padding:5px 10px}
+  .done-badge{font-size:12px}
+}
+
+/* Small phones (iPhone SE etc) */
+@media (max-width:380px) {
+  .phone-frame{height:calc(100dvh - 210px);border-radius:20px}
+  .q-text{font-size:16px}
+  .mockup-variant{padding:8px 12px}
+  .mockup-variant-letter{width:30px;height:30px;font-size:15px}
+  .mockup-variant-title{font-size:13px}
+}
 
 @supports(-webkit-touch-callout:none){body{height:-webkit-fill-available}textarea:focus,input[type="text"]:focus{scroll-margin-bottom:160px}}
 </style>
@@ -296,16 +649,16 @@ function phoneFrame(bodyId, headerName, headerSub) {
 
 function reportFrame(bodyId) {
   return `
-  <div class="phone-frame">
+  <div class="phone-frame report-phone">
     <div class="phone-status"><span>9:41</span><span style="font-size:11px">&#9679;&#9679;&#9679;</span></div>
-    <div class="phone-header">
-      <div class="phone-header-back">&#8249;</div>
+    <div class="phone-header report-phone__header">
+      <button class="report-back-btn" type="button" aria-label="Назад">&#8249;</button>
       <div style="flex:1">
         <div class="phone-header-name">Математика</div>
-        <div style="font-size:11px;color:#333435">сдано 16 марта</div>
+        <div class="report-subhead">сдано 16 марта</div>
       </div>
     </div>
-    <div class="phone-body" id="${bodyId}" style="background:#f8fafc;gap:10px"></div>
+    <div class="phone-body" id="${bodyId}"></div>
   </div>`;
 }
 
@@ -351,7 +704,7 @@ function autoPlayChat(bodyId, msgs, onDone) {
     body.scrollTop = body.scrollHeight;
 
     const m = msgs[idx++];
-    const delay = m.type === 'grade' ? 1200 : m.type === 'sep' ? 400 : 700 + Math.min(m.text.length * 12, 800);
+    const delay = m.type === 'grade' ? 600 : m.type === 'sep' ? 150 : 400;
 
     setTimeout(() => {
       typing.remove();
@@ -366,7 +719,7 @@ function autoPlayChat(bodyId, msgs, onDone) {
       }
       body.appendChild(el);
       body.scrollTop = body.scrollHeight;
-      setTimeout(showNext, 300);
+      setTimeout(showNext, 100);
     }, delay);
   }
   showNext();
@@ -377,11 +730,11 @@ function autoPlayChat(bodyId, msgs, onDone) {
 // ══════════════════════════════════════
 function initMockupChatGrade() {
   autoPlayChat('mock-chat-grade', [
-    {type:'bot', text:'Привет! &#128075; Посмотрел твою домашку по предмету «Алгебра».'},
-    {type:'bot', text:'Вижу, что ты взялся за все задания — это уже хорошо!'},
+    {type:'bot', text:'Привет! &#128075; Посмотрел твою домашку по предмету «Математика».'},
+    {type:'bot', text:'Работа выполнена очень хорошо!'},
     {type:'sep', text:'Разбор работы'},
-    {type:'bot', text:'Давай разберём ошибки по порядку. Основная проблема — знаки при вынесении множителя за скобку.'},
-    {type:'grade', grade:2, label:'Оценка за работу', text:'Давай разберёмся вместе — всё получится!'},
+    {type:'bot', text:'Чтобы избежать подобных ошибок в будущем, советую после применения формулы мысленно проговаривать каждый шаг.'},
+    {type:'grade', grade:4, label:'Оценка за работу', text:'Так держать 👍'},
   ]);
 }
 
@@ -392,19 +745,21 @@ function initMockupReportGrade() {
   const body = document.getElementById('mock-report-grade');
   if (!body) return;
   body.innerHTML = `
-    <div class="r-score">
-      <div class="r-score-grade">
-        <div class="r-score-grade-label">Твоя оценка</div>
-        <div class="r-score-grade-val" style="background:#ff7070">2</div>
+    <div class="r-screen">
+      <div class="r-score">
+        <div class="r-score-grade">
+          <div class="r-score-grade-label">Твоя оценка</div>
+          <div class="r-score-grade-val">4</div>
+        </div>
+        <div class="r-score-text">
+          <strong>Так держать &#128077;</strong>
+          Уверенное выполнение умножения и деления десятичных дробей на целые числа и на разрядные единицы!
+        </div>
       </div>
-      <div class="r-score-text">
-        <strong>Нужно разобраться &#128170;</strong>
-        Основная проблема — знаки при вынесении множителя за скобку. Давай разберём по порядку.
+      <div class="r-feedback">
+        <h3>Обратная связь по работе</h3>
+        <p>Работа выполнена очень хорошо! Чтобы избежать подобных ошибок в будущем, советую после применения формулы мысленно проговаривать каждый шаг. Например: &quot;Первое слагаемое — 3y, его квадрат — 9y². Второе слагаемое — 2, его квадрат — 4.&quot; Это поможет избежать путаницы.</p>
       </div>
-    </div>
-    <div class="r-feedback">
-      <h3>Обратная связь по работе</h3>
-      <p>Вижу, что ты взялся за все задания. Но есть серьёзные ошибки в знаках при группировке. Советую после решения проверять ответ обратным раскрытием скобок.</p>
     </div>
   `;
   setTimeout(() => { document.getElementById('btnNext').disabled = false; }, 2500);
@@ -476,44 +831,83 @@ function initMockupReportErrors() {
   const body = document.getElementById('mock-report-errors');
   if (!body) return;
   body.innerHTML = `
-    <div class="r-score" style="margin-bottom:6px">
-      <div class="r-score-grade">
-        <div class="r-score-grade-label">Твоя оценка</div>
-        <div class="r-score-grade-val" style="background:#66bb6a">4</div>
-      </div>
-      <div class="r-score-text">
-        <strong>Молодец &#128077;</strong>
-        Почти всё написано верно. Две мелкие помарки.
-      </div>
-    </div>
-    <div style="font-size:14px;font-weight:700;color:#232323;padding:4px 0">Разбор ошибок</div>
-    <div class="r-error-card">
-      <div class="r-error-page">
-        <div class="r-error-page-title">Страница 1</div>
-        <div class="r-error-badge">Ошибок: 2</div>
-      </div>
-      <div class="r-error-item">
-        <div class="r-error-num">1. Небольшая помарка: Стр. 1</div>
-        <div class="r-error-desc">Ты правильно написал слово, но немного исправил букву.</div>
-        <div class="r-error-block student">
-          <div class="r-error-block-label">Ошибка ученика</div>
-          <div class="r-error-block-val">неловкость (исправление)</div>
+    <div class="r-screen">
+      <div class="r-score">
+        <div class="r-score-grade">
+          <div class="r-score-grade-label">Твоя оценка</div>
+          <div class="r-score-grade-val">4</div>
         </div>
-        <div class="r-error-block correct">
-          <div class="r-error-block-label">Правильный ответ</div>
-          <div class="r-error-block-val">неловкость</div>
+        <div class="r-score-text">
+          <strong>Так держать &#128077;</strong>
+          Уверенное выполнение умножения и деления десятичных дробей на целые числа и на разрядные единицы!
         </div>
       </div>
-      <div class="r-error-item">
-        <div class="r-error-num">2. Потерялся предлог: Стр. 1</div>
-        <div class="r-error-desc">Пропущено слово «У» в начале предложения.</div>
-        <div class="r-error-block student">
-          <div class="r-error-block-label">Ошибка ученика</div>
-          <div class="r-error-block-val">Него всё валилось...</div>
+      <div class="r-feedback">
+        <h3>Обратная связь по работе</h3>
+        <p>Работа выполнена очень хорошо! Чтобы избежать подобных ошибок в будущем, советую после применения формулы мысленно проговаривать каждый шаг. Например: &quot;Первое слагаемое — 3y, его квадрат — 9y². Второе слагаемое — 2, его квадрат — 4.&quot; Это поможет избежать путаницы.</p>
+      </div>
+      <div class="r-section-title">Разбор ошибок</div>
+      <div class="r-pages-card">
+        <div class="r-pages-head">
+          <div class="r-pages-head-title">Страница 1</div>
+          <div class="r-pages-head-right">
+            <div class="r-pages-chip r-pages-chip--error">Ошибок: 2</div>
+            <button class="r-pages-toggle" type="button">&#708;</button>
+          </div>
         </div>
-        <div class="r-error-block correct">
-          <div class="r-error-block-label">Правильный ответ</div>
-          <div class="r-error-block-val">У него всё валилось...</div>
+        <div class="r-pages-divider"></div>
+        <div class="r-error-item">
+          <div class="r-error-item-top">
+            <p class="r-error-num">1. Ошибка в умножении одночленов: №701г</p>
+            <button class="r-dispute-btn" type="button">Я не согласен</button>
+          </div>
+          <p class="r-error-desc">При умножении одночлена на многочлен нужно умножить этот одночлен на каждый член многочлена. При умножении степеней с одинаковым основанием их показатели складываются.</p>
+          <div class="r-error-block student">
+            <div class="r-error-block-label">Ошибка ученика</div>
+            <div class="r-error-block-val">-0,5c²(2c-3) = (-0,5c³ - c + 1,5c²)</div>
+          </div>
+          <div class="r-error-block correct">
+            <div class="r-error-block-label">Правильный ответ</div>
+            <div class="r-error-block-val">-0,5c²(2c-3) = -0,5c² × 2c - 0,5c² × (-3) = -c³ + 1,5c²</div>
+          </div>
+        </div>
+        <div class="r-error-item">
+          <div class="r-error-item-top">
+            <p class="r-error-num">2. Ошибка при переписывании: №701д</p>
+            <button class="r-dispute-btn" type="button">Я не согласен</button>
+          </div>
+          <p class="r-error-desc">Неверно переписанный член выражения привел к неверному результату.</p>
+          <div class="r-error-block student">
+            <div class="r-error-block-label">Ошибка ученика</div>
+            <div class="r-error-block-val">(2a² - b)(3-a) = (2a² - 2b²)(3-a)</div>
+          </div>
+          <div class="r-error-block correct">
+            <div class="r-error-block-label">Правильный ответ</div>
+            <div class="r-error-block-val">(2a² - b)(3-a) = 6a² - 2a³ - 3b + ab</div>
+          </div>
+        </div>
+        <div class="r-photo-wrap">
+          <img src="https://www.figma.com/api/mcp/asset/81cb8bef-ac77-4048-ab41-9091d297c94e" alt="Фото тетради" />
+          <button class="r-photo-expand" type="button">&#8663;</button>
+          <div class="r-photo-highlight"></div>
+        </div>
+      </div>
+      <div class="r-page-collapsed">
+        <div class="r-pages-head">
+          <div class="r-pages-head-title">Страница 1</div>
+          <div class="r-pages-head-right">
+            <div class="r-pages-chip r-pages-chip--ok">Ошибок: 0</div>
+            <button class="r-pages-toggle" type="button">&#709;</button>
+          </div>
+        </div>
+      </div>
+      <div class="r-page-collapsed">
+        <div class="r-pages-head">
+          <div class="r-pages-head-title">Страница 2</div>
+          <div class="r-pages-head-right">
+            <div class="r-pages-chip r-pages-chip--ok">Ошибок: 0</div>
+            <button class="r-pages-toggle" type="button">&#709;</button>
+          </div>
         </div>
       </div>
     </div>
@@ -587,30 +981,46 @@ function initMockupReportAppeal() {
   const body = document.getElementById('mock-report-appeal');
   if (!body) return;
   body.innerHTML = `
-    <div class="r-score" style="margin-bottom:6px">
-      <div class="r-score-grade">
-        <div class="r-score-grade-label">Твоя оценка</div>
-        <div class="r-score-grade-val" style="background:#ffb347">3</div>
+    <div class="r-screen">
+      <div class="r-score">
+        <div class="r-score-grade">
+          <div class="r-score-grade-label">Твоя оценка</div>
+          <div class="r-score-grade-val">4</div>
+        </div>
+        <div class="r-score-text">
+          <strong>Так держать &#128077;</strong>
+          Уверенное выполнение умножения и деления десятичных дробей на целые числа и на разрядные единицы!
+        </div>
       </div>
-      <div class="r-score-text">
-        <strong>Неплохо, но можно лучше</strong>
-        Повтори правила на безударные гласные.
+      <div class="r-section-title">Разбор ошибок</div>
+      <div class="r-pages-card">
+        <div class="r-pages-head">
+          <div class="r-pages-head-title">Страница 1</div>
+          <div class="r-pages-head-right">
+            <div class="r-pages-chip r-pages-chip--error">Ошибок: 1</div>
+            <button class="r-pages-toggle" type="button">&#708;</button>
+          </div>
+        </div>
+        <div class="r-pages-divider"></div>
+        <div class="r-error-item">
+          <div class="r-error-item-top">
+            <p class="r-error-num">1. Ошибка в умножении одночленов: №701г</p>
+            <button class="r-dispute-btn" id="reportDisputeBtn" onclick="doReportAppeal()">Я не согласен</button>
+          </div>
+          <p class="r-error-desc">При умножении одночлена на многочлен нужно умножить этот одночлен на каждый член многочлена.</p>
+          <div class="r-error-block student">
+            <div class="r-error-block-label">Ошибка ученика</div>
+            <div class="r-error-block-val">-0,5c²(2c-3) = (-0,5c³ - c + 1,5c²)</div>
+          </div>
+          <div class="r-error-block correct">
+            <div class="r-error-block-label">Правильный ответ</div>
+            <div class="r-error-block-val">-0,5c²(2c-3) = -0,5c² × 2c - 0,5c² × (-3) = -c³ + 1,5c²</div>
+          </div>
+          <div id="reportAppealResult"></div>
+        </div>
       </div>
+      <div class="tap-hint" id="reportAppealHint">&#128072; Нажми «Я не согласен»</div>
     </div>
-    <div class="r-error-card">
-      <div class="r-error-page">
-        <div class="r-error-page-title">Страница 1</div>
-        <div class="r-error-badge">Ошибок: 3</div>
-      </div>
-      <div class="r-error-item">
-        <div class="r-error-num">1. Безударная гласная в корне</div>
-        <div class="r-error-desc">Слово «корова» — словарное, его нужно запомнить.</div>
-        <button class="r-dispute-btn" id="reportDisputeBtn" onclick="doReportAppeal()">&#9888; Я не согласен</button>
-        <div style="clear:both"></div>
-        <div id="reportAppealResult"></div>
-      </div>
-    </div>
-    <div class="tap-hint" id="reportAppealHint">&#128072; Нажми «Я не согласен»</div>
   `;
 }
 
@@ -622,7 +1032,7 @@ function doReportAppeal() {
   const hint = document.getElementById('reportAppealHint');
   if (hint) hint.remove();
   const res = document.getElementById('reportAppealResult');
-  res.innerHTML = '<div style="margin-top:8px;padding:10px;border-radius:10px;background:#e6f9f0;border:1.5px solid #b3e5d1;font-size:11px;color:#272443"><strong style="display:block;margin-bottom:2px">&#10003; Запрос отправлен</strong>Учитель рассмотрит в течение 72 часов</div>';
+  res.innerHTML = '<div class="r-appeal-result"><strong style="display:block;margin-bottom:3px">&#10003; Запрос отправлен</strong>Учитель рассмотрит обращение в течение 72 часов</div>';
   document.getElementById('btnNext').disabled = false;
 }
 
