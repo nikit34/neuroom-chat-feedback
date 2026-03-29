@@ -741,27 +741,105 @@ function initMockupChatGrade() {
 // ══════════════════════════════════════
 // MOCKUP REPORT: GRADE
 // ══════════════════════════════════════
-function initMockupReportGrade() {
-  const body = document.getElementById('mock-report-grade');
-  if (!body) return;
-  body.innerHTML = `
+// Shared report HTML generator — matches Figma exactly
+function reportHTML(grade, opts) {
+  const gradeColors = {2:'#ef4444', 3:'#f59e0b', 4:'#6240ff', 5:'#10b981'};
+  const gradeTitles = {2:'Нужно разобраться &#128170;', 3:'Неплохо, но можно лучше', 4:'Так держать &#128077;', 5:'Отлично! &#127881;'};
+  const gradeDescs = {
+    2:'Есть серьёзные ошибки при умножении. Давай разберём по порядку.',
+    3:'Уверенное выполнение умножения, но есть ошибки в знаках при группировке.',
+    4:'Уверенное выполнение умножения и деления десятичных дробей на целые числа и на разрядные единицы!',
+  };
+  const bg = gradeColors[grade] || '#6240ff';
+  const disputeId = opts.disputeId || '';
+  const disputeOnclick = disputeId ? ` id="${disputeId}" onclick="doReportAppeal()"` : '';
+  const resultDiv = opts.appealResult ? '<div id="reportAppealResult"></div>' : '';
+  const hint = opts.hint || '';
+
+  return `
     <div class="r-screen">
       <div class="r-score">
         <div class="r-score-grade">
           <div class="r-score-grade-label">Твоя оценка</div>
-          <div class="r-score-grade-val">4</div>
+          <div class="r-score-grade-val" style="background:${bg}">${grade}</div>
         </div>
         <div class="r-score-text">
-          <strong>Так держать &#128077;</strong>
-          Уверенное выполнение умножения и деления десятичных дробей на целые числа и на разрядные единицы!
+          <strong>${gradeTitles[grade]}</strong>
+          ${gradeDescs[grade]}
         </div>
       </div>
       <div class="r-feedback">
         <h3>Обратная связь по работе</h3>
-        <p>Работа выполнена очень хорошо! Чтобы избежать подобных ошибок в будущем, советую после применения формулы мысленно проговаривать каждый шаг. Например: &quot;Первое слагаемое — 3y, его квадрат — 9y². Второе слагаемое — 2, его квадрат — 4.&quot; Это поможет избежать путаницы.</p>
+        <p>Работа выполнена очень хорошо! Чтобы избежать подобных ошибок в будущем, советую после применения формулы мысленно проговаривать каждый шаг. Например: &laquo;Первое слагаемое &mdash; 3y, его квадрат &mdash; 9y&sup2;. Второе слагаемое &mdash; 2, его квадрат &mdash; 4.&raquo; Это поможет избежать путаницы.</p>
       </div>
-    </div>
-  `;
+      <div class="r-section-title">Разбор ошибок</div>
+      <div class="r-pages-card">
+        <div class="r-pages-head">
+          <div class="r-pages-head-title">Страница 1</div>
+          <div class="r-pages-head-right">
+            <div class="r-pages-chip r-pages-chip--error">Ошибок: 2</div>
+            <button class="r-pages-toggle" type="button">&#708;</button>
+          </div>
+        </div>
+        <div class="r-pages-divider"></div>
+        <div class="r-error-item">
+          <div class="r-error-item-top">
+            <p class="r-error-num">1. Ошибка в умножении одночленов: №701г</p>
+            <button class="r-dispute-btn"${disputeOnclick} type="button">Я не согласен</button>
+          </div>
+          <p class="r-error-desc">При умножении одночлена на многочлен нужно умножить этот одночлен на каждый член многочлена. При умножении степеней с одинаковым основанием их показатели складываются.</p>
+          <div class="r-error-block student">
+            <div class="r-error-block-label">Ошибка ученика</div>
+            <div class="r-error-block-val">-0,5c&sup2;(2c-3) = (-0,5c&sup3; - c + 1,5c&sup2;)</div>
+          </div>
+          <div class="r-error-block correct">
+            <div class="r-error-block-label">Правильный ответ</div>
+            <div class="r-error-block-val">-0,5c&sup2;(2c-3) = -0,5c&sup2; &times; 2c - 0,5c&sup2; &times; (-3) = -c&sup3; + 1,5c&sup2;</div>
+          </div>
+          ${resultDiv}
+        </div>
+        <div class="r-error-item">
+          <div class="r-error-item-top">
+            <p class="r-error-num">2. Ошибка при переписывании: №701д</p>
+            <button class="r-dispute-btn" type="button">Я не согласен</button>
+          </div>
+          <p class="r-error-desc">Неверно переписанный член выражения привел к неверному результату.</p>
+          <div class="r-error-block student">
+            <div class="r-error-block-label">Ошибка ученика</div>
+            <div class="r-error-block-val">(2a&sup2; - b)(3-a) = (2a&sup2; - 2b&sup2;)(3-a)</div>
+          </div>
+          <div class="r-error-block correct">
+            <div class="r-error-block-label">Правильный ответ</div>
+            <div class="r-error-block-val">(2a&sup2; - b)(3-a) = 6a&sup2; - 2a&sup3; - 3b + ab</div>
+          </div>
+        </div>
+      </div>
+      <div class="r-page-collapsed">
+        <div class="r-pages-head">
+          <div class="r-pages-head-title">Страница 2</div>
+          <div class="r-pages-head-right">
+            <div class="r-pages-chip r-pages-chip--ok">Ошибок: 0</div>
+            <button class="r-pages-toggle" type="button">&#709;</button>
+          </div>
+        </div>
+      </div>
+      <div class="r-page-collapsed">
+        <div class="r-pages-head">
+          <div class="r-pages-head-title">Страница 3</div>
+          <div class="r-pages-head-right">
+            <div class="r-pages-chip r-pages-chip--ok">Ошибок: 0</div>
+            <button class="r-pages-toggle" type="button">&#709;</button>
+          </div>
+        </div>
+      </div>
+      ${hint}
+    </div>`;
+}
+
+function initMockupReportGrade() {
+  const body = document.getElementById('mock-report-grade');
+  if (!body) return;
+  body.innerHTML = reportHTML(2, {});
   setTimeout(() => { document.getElementById('btnNext').disabled = false; }, 2500);
   body.addEventListener('scroll', () => { document.getElementById('btnNext').disabled = false; }, {once:true});
 }
@@ -830,88 +908,7 @@ function toggleMistake(id) {
 function initMockupReportErrors() {
   const body = document.getElementById('mock-report-errors');
   if (!body) return;
-  body.innerHTML = `
-    <div class="r-screen">
-      <div class="r-score">
-        <div class="r-score-grade">
-          <div class="r-score-grade-label">Твоя оценка</div>
-          <div class="r-score-grade-val">4</div>
-        </div>
-        <div class="r-score-text">
-          <strong>Так держать &#128077;</strong>
-          Уверенное выполнение умножения и деления десятичных дробей на целые числа и на разрядные единицы!
-        </div>
-      </div>
-      <div class="r-feedback">
-        <h3>Обратная связь по работе</h3>
-        <p>Работа выполнена очень хорошо! Чтобы избежать подобных ошибок в будущем, советую после применения формулы мысленно проговаривать каждый шаг. Например: &quot;Первое слагаемое — 3y, его квадрат — 9y². Второе слагаемое — 2, его квадрат — 4.&quot; Это поможет избежать путаницы.</p>
-      </div>
-      <div class="r-section-title">Разбор ошибок</div>
-      <div class="r-pages-card">
-        <div class="r-pages-head">
-          <div class="r-pages-head-title">Страница 1</div>
-          <div class="r-pages-head-right">
-            <div class="r-pages-chip r-pages-chip--error">Ошибок: 2</div>
-            <button class="r-pages-toggle" type="button">&#708;</button>
-          </div>
-        </div>
-        <div class="r-pages-divider"></div>
-        <div class="r-error-item">
-          <div class="r-error-item-top">
-            <p class="r-error-num">1. Ошибка в умножении одночленов: №701г</p>
-            <button class="r-dispute-btn" type="button">Я не согласен</button>
-          </div>
-          <p class="r-error-desc">При умножении одночлена на многочлен нужно умножить этот одночлен на каждый член многочлена. При умножении степеней с одинаковым основанием их показатели складываются.</p>
-          <div class="r-error-block student">
-            <div class="r-error-block-label">Ошибка ученика</div>
-            <div class="r-error-block-val">-0,5c²(2c-3) = (-0,5c³ - c + 1,5c²)</div>
-          </div>
-          <div class="r-error-block correct">
-            <div class="r-error-block-label">Правильный ответ</div>
-            <div class="r-error-block-val">-0,5c²(2c-3) = -0,5c² × 2c - 0,5c² × (-3) = -c³ + 1,5c²</div>
-          </div>
-        </div>
-        <div class="r-error-item">
-          <div class="r-error-item-top">
-            <p class="r-error-num">2. Ошибка при переписывании: №701д</p>
-            <button class="r-dispute-btn" type="button">Я не согласен</button>
-          </div>
-          <p class="r-error-desc">Неверно переписанный член выражения привел к неверному результату.</p>
-          <div class="r-error-block student">
-            <div class="r-error-block-label">Ошибка ученика</div>
-            <div class="r-error-block-val">(2a² - b)(3-a) = (2a² - 2b²)(3-a)</div>
-          </div>
-          <div class="r-error-block correct">
-            <div class="r-error-block-label">Правильный ответ</div>
-            <div class="r-error-block-val">(2a² - b)(3-a) = 6a² - 2a³ - 3b + ab</div>
-          </div>
-        </div>
-        <div class="r-photo-wrap">
-          <img src="https://www.figma.com/api/mcp/asset/81cb8bef-ac77-4048-ab41-9091d297c94e" alt="Фото тетради" />
-          <button class="r-photo-expand" type="button">&#8663;</button>
-          <div class="r-photo-highlight"></div>
-        </div>
-      </div>
-      <div class="r-page-collapsed">
-        <div class="r-pages-head">
-          <div class="r-pages-head-title">Страница 1</div>
-          <div class="r-pages-head-right">
-            <div class="r-pages-chip r-pages-chip--ok">Ошибок: 0</div>
-            <button class="r-pages-toggle" type="button">&#709;</button>
-          </div>
-        </div>
-      </div>
-      <div class="r-page-collapsed">
-        <div class="r-pages-head">
-          <div class="r-pages-head-title">Страница 2</div>
-          <div class="r-pages-head-right">
-            <div class="r-pages-chip r-pages-chip--ok">Ошибок: 0</div>
-            <button class="r-pages-toggle" type="button">&#709;</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
+  body.innerHTML = reportHTML(4, {});
   setTimeout(() => { document.getElementById('btnNext').disabled = false; }, 2500);
   body.addEventListener('scroll', () => { document.getElementById('btnNext').disabled = false; }, {once:true});
 }
@@ -980,48 +977,11 @@ function doChatAppeal() {
 function initMockupReportAppeal() {
   const body = document.getElementById('mock-report-appeal');
   if (!body) return;
-  body.innerHTML = `
-    <div class="r-screen">
-      <div class="r-score">
-        <div class="r-score-grade">
-          <div class="r-score-grade-label">Твоя оценка</div>
-          <div class="r-score-grade-val">4</div>
-        </div>
-        <div class="r-score-text">
-          <strong>Так держать &#128077;</strong>
-          Уверенное выполнение умножения и деления десятичных дробей на целые числа и на разрядные единицы!
-        </div>
-      </div>
-      <div class="r-section-title">Разбор ошибок</div>
-      <div class="r-pages-card">
-        <div class="r-pages-head">
-          <div class="r-pages-head-title">Страница 1</div>
-          <div class="r-pages-head-right">
-            <div class="r-pages-chip r-pages-chip--error">Ошибок: 1</div>
-            <button class="r-pages-toggle" type="button">&#708;</button>
-          </div>
-        </div>
-        <div class="r-pages-divider"></div>
-        <div class="r-error-item">
-          <div class="r-error-item-top">
-            <p class="r-error-num">1. Ошибка в умножении одночленов: №701г</p>
-            <button class="r-dispute-btn" id="reportDisputeBtn" onclick="doReportAppeal()">Я не согласен</button>
-          </div>
-          <p class="r-error-desc">При умножении одночлена на многочлен нужно умножить этот одночлен на каждый член многочлена.</p>
-          <div class="r-error-block student">
-            <div class="r-error-block-label">Ошибка ученика</div>
-            <div class="r-error-block-val">-0,5c²(2c-3) = (-0,5c³ - c + 1,5c²)</div>
-          </div>
-          <div class="r-error-block correct">
-            <div class="r-error-block-label">Правильный ответ</div>
-            <div class="r-error-block-val">-0,5c²(2c-3) = -0,5c² × 2c - 0,5c² × (-3) = -c³ + 1,5c²</div>
-          </div>
-          <div id="reportAppealResult"></div>
-        </div>
-      </div>
-      <div class="tap-hint" id="reportAppealHint">&#128072; Нажми «Я не согласен»</div>
-    </div>
-  `;
+  body.innerHTML = reportHTML(3, {
+    disputeId: 'reportDisputeBtn',
+    appealResult: true,
+    hint: '<div class="tap-hint" id="reportAppealHint">&#128072; Нажми «Я не согласен»</div>'
+  });
 }
 
 function doReportAppeal() {
@@ -1353,9 +1313,25 @@ function animC(){
   requestAnimationFrame(animC);
 }
 
-// iOS keyboard scroll
+// iOS keyboard handling — move nav above keyboard
+let keyboardOpen = false;
 document.addEventListener('focusin',e=>{
-  if(e.target.matches('textarea,input[type="text"]')) setTimeout(()=>e.target.scrollIntoView({behavior:'smooth',block:'center'}),300);
+  if(e.target.matches('textarea,input[type="text"]')) {
+    keyboardOpen = true;
+    document.getElementById('nav').style.position = 'relative';
+    document.getElementById('nav').style.background = 'none';
+    document.getElementById('nav').style.paddingBottom = '14px';
+    setTimeout(()=>e.target.scrollIntoView({behavior:'smooth',block:'center'}),300);
+  }
+});
+document.addEventListener('focusout',()=>{
+  if(keyboardOpen) {
+    keyboardOpen = false;
+    const nav = document.getElementById('nav');
+    nav.style.position = '';
+    nav.style.background = '';
+    nav.style.paddingBottom = '';
+  }
 });
 
 render();
