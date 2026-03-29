@@ -1337,24 +1337,27 @@ document.getElementById('btnNext').addEventListener('click', () => {
   }
 });
 
-// iOS keyboard handling — move nav above keyboard
-let keyboardOpen = false;
-document.addEventListener('focusin',e=>{
-  if(e.target.matches('textarea,input[type="text"]')) {
-    keyboardOpen = true;
-    document.getElementById('nav').style.position = 'relative';
-    document.getElementById('nav').style.background = 'none';
-    document.getElementById('nav').style.paddingBottom = '14px';
-    setTimeout(()=>e.target.scrollIntoView({behavior:'smooth',block:'center'}),300);
+// iOS keyboard: keep nav visible above keyboard via visualViewport
+if (window.visualViewport) {
+  const nav = document.getElementById('nav');
+  function adjustNav() {
+    const vv = window.visualViewport;
+    const offset = window.innerHeight - vv.height - vv.offsetTop;
+    if (offset > 50) {
+      // keyboard open
+      nav.style.bottom = offset + 'px';
+    } else {
+      nav.style.bottom = '';
+    }
   }
-});
-document.addEventListener('focusout',()=>{
-  if(keyboardOpen) {
-    keyboardOpen = false;
-    const nav = document.getElementById('nav');
-    nav.style.position = '';
-    nav.style.background = '';
-    nav.style.paddingBottom = '';
+  window.visualViewport.addEventListener('resize', adjustNav);
+  window.visualViewport.addEventListener('scroll', adjustNav);
+}
+
+// Scroll input into view when focused
+document.addEventListener('focusin', e => {
+  if (e.target.matches('textarea,input[type="text"]')) {
+    setTimeout(() => e.target.scrollIntoView({behavior:'smooth',block:'center'}), 300);
   }
 });
 
