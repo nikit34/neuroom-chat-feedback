@@ -986,33 +986,27 @@ function initMockupReportErrors() {
 function initMockupChatAppeal() {
   const body = document.getElementById('mock-chat-appeal');
   if (!body) return;
+  // Hide input bar to free up space on small screens
+  const inputBar = body.parentElement.querySelector('.phone-input-bar');
+  if (inputBar) inputBar.style.display = 'none';
+  // Flat layout — no overflow:hidden containers that block touch scroll on iOS
   body.innerHTML = `
     <div class="m-grade" style="margin-bottom:4px"><div class="m-grade-circle g3">3</div><div class="m-grade-text"><strong>Оценка за работу</strong>Неплохо, но можно лучше!</div></div>
-    <div class="m-bot">Хороший старт! Видно, что ты старался. Есть один момент:</div>
-    <div class="m-mistake expanded" id="ca1">
-      <div class="m-mistake-hdr">
+    <div class="m-bot">Есть один момент:</div>
+    <div style="max-width:85%;align-self:flex-start;background:#f8f8f8;border-radius:14px;border-bottom-left-radius:4px;padding:10px 12px;font-size:11px;line-height:1.4;color:#5f5a89">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
         <div class="m-mistake-icon critical">!</div>
-        <div class="m-mistake-title">Безударная гласная в корне</div>
+        <span style="font-size:13px;font-weight:600;color:#272443">Безударная гласная в корне</span>
       </div>
-      <div class="m-mistake-body" style="max-height:500px">
-        <div class="m-mistake-content">
-          Слово «корова» — словарное, его нужно запомнить.
-          <div class="m-mistake-diff">В твоем ответе:</div>
-          <div class="m-mistake-was">карова</div>
-          <div class="m-mistake-diff">Как должно быть:</div>
-          <div class="m-mistake-now">корова</div>
-          <div class="m-encourage">&#128154; Словарные слова — это просто тренировка памяти. Попробуй написать его 3 раза — и запомнится!</div>
-          <button class="m-appeal-btn" id="appealBtn1" onclick="doChatAppeal()">Оспорить ошибку</button>
-        </div>
-      </div>
+      Слово «корова» — словарное.
+      <div class="m-mistake-diff">В твоем ответе:</div>
+      <div class="m-mistake-was">карова</div>
+      <div class="m-mistake-diff">Как должно быть:</div>
+      <div class="m-mistake-now">корова</div>
     </div>
+    <button class="m-appeal-btn" id="appealBtn1" onclick="doChatAppeal()" style="align-self:flex-start;margin-left:4px">Оспорить ошибку</button>
     <div class="tap-hint" id="appealHint">&#128072; Нажми «Оспорить ошибку»</div>
   `;
-  // Scroll phone-body so the appeal button is visible on small screens
-  setTimeout(() => {
-    const btn = document.getElementById('appealBtn1');
-    if (btn) btn.scrollIntoView({behavior:'smooth', block:'center'});
-  }, 400);
 }
 
 function doChatAppeal() {
