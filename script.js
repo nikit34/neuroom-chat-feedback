@@ -655,6 +655,10 @@ function renderMessage(msg) {
       nudge.textContent = msg.text;
       chat.appendChild(nudge);
       break;
+
+    case "appeal-btn":
+      chat.appendChild(makeAppealGradeButton());
+      break;
   }
 
   chat.scrollTop = chat.scrollHeight;
@@ -764,6 +768,25 @@ function makeCtaButton(text) {
       chatArea.appendChild(botReply);
       chatArea.scrollTop = chatArea.scrollHeight;
     }, 800);
+  });
+  return wrap;
+}
+
+function makeAppealGradeButton() {
+  const wrap = document.createElement("div");
+  wrap.className = "msg-appeal-grade";
+  wrap.innerHTML = `
+    <button class="msg-appeal-grade__btn">
+      <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+        <path d="M10 2v8m0 4v.01M3 10a7 7 0 1114 0 7 7 0 01-14 0z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Оспорить оценку
+    </button>
+  `;
+  wrap.querySelector("button").addEventListener("click", () => {
+    interactionCount++;
+    metricInteractions.textContent = interactionCount;
+    openAppealSheet();
   });
   return wrap;
 }
