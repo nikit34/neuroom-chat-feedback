@@ -403,6 +403,45 @@ input[type="text"]::placeholder{color:var(--text-dim);letter-spacing:0}
 }
 .r-dispute-btn::before{content:"ⓘ";font-size:11px;color:#7a7f82}
 
+/* ── Report bottom sheet (appeal form) ── */
+.r-sheet-overlay{position:absolute;inset:0;background:rgba(35,35,35,.25);z-index:5;opacity:0;pointer-events:none;transition:opacity .3s}
+.r-sheet-overlay.open{opacity:1;pointer-events:auto}
+.r-sheet{
+  position:absolute;bottom:0;left:0;right:0;z-index:6;
+  background:#fff;border-radius:20px 20px 0 0;padding:16px;
+  transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);
+  display:flex;flex-direction:column;gap:10px;
+  max-height:85%;overflow-y:auto;
+}
+.r-sheet.open{transform:translateY(0)}
+.r-sheet-header{display:flex;justify-content:space-between;align-items:center}
+.r-sheet-title{font-size:15px;font-weight:700;color:#232323}
+.r-sheet-close{background:none;border:none;font-size:18px;color:#7a7f82;cursor:pointer;padding:4px}
+.r-sheet-ctx{background:#f2f6f8;border:1px solid #ededf6;border-radius:12px;padding:12px}
+.r-sheet-ctx-title{font-size:12px;font-weight:600;color:#232323}
+.r-sheet-ctx-desc{font-size:11px;color:#333435;margin-top:4px;line-height:1.4}
+.r-sheet-q{font-size:12px;font-weight:600;color:#232323}
+.r-sheet-q span{color:#7a7f82;font-weight:400}
+.r-sheet-checkboxes{display:flex;flex-direction:column;gap:8px}
+.r-sheet-cb{display:flex;align-items:center;gap:8px;cursor:pointer}
+.r-sheet-cb input{width:16px;height:16px;accent-color:#232323;cursor:pointer}
+.r-sheet-cb-label{font-size:12px;color:#232323}
+.r-sheet-comment{display:flex;flex-direction:column;gap:4px}
+.r-sheet-comment-label{font-size:12px;font-weight:600;color:#232323}
+.r-sheet-comment textarea{width:100%;min-height:55px;border:none;background:#f2f6f8;border-radius:10px;padding:10px;font-size:12px;font-family:inherit;color:#232323;resize:none;outline:none}
+.r-sheet-comment textarea::placeholder{color:#7a7f82}
+.r-sheet-hint{font-size:10px;color:#7a7f82;opacity:.7}
+.r-sheet-btns{display:flex;flex-direction:column;gap:6px}
+.r-sheet-btns button{width:100%;padding:10px;border-radius:10px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;border:none}
+.r-sheet-btn-submit{background:#6240ff;color:#fff;box-shadow:0 4px 12px rgba(98,64,255,.2)}
+.r-sheet-btn-submit:disabled{opacity:.4;cursor:default}
+.r-sheet-btn-cancel{background:#fff;border:1px solid #ededf6 !important;color:#232323}
+
+/* ── Chat quick-reply chips ── */
+.m-chips{display:flex;flex-wrap:wrap;gap:4px;max-width:90%;align-self:flex-start;animation:fu .3s ease-out}
+.m-chip{padding:6px 10px;border-radius:10px;border:1.5px solid #7457fe;background:none;color:#7457fe;font-size:11px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s}
+.m-chip:active{background:rgba(116,87,254,.15)}
+
 .r-error-block{
   border-radius:14px;
   padding:12px;
@@ -956,28 +995,73 @@ function doChatAppeal() {
   if (!btn || btn.dataset.done) return;
   btn.dataset.done = '1';
   btn.style.opacity = '.5';
-  document.getElementById('appealHint').remove();
+  const hint = document.getElementById('appealHint');
+  if (hint) hint.remove();
+
   // Student message
-  const sm = document.createElement('div'); sm.className = 'm-student'; sm.textContent = 'Хочу оспорить: «Безударная гласная»';
-  body.appendChild(sm);
-  body.scrollTop = body.scrollHeight;
-  // Pending
+  const sm = document.createElement('div'); sm.className = 'm-student'; sm.textContent = 'Хочу оспорить эту ошибку';
+  body.appendChild(sm); body.scrollTop = body.scrollHeight;
+
+  // Bot asks reason with typing
   setTimeout(() => {
-    const pd = document.createElement('div'); pd.className = 'm-bot'; pd.id = 'appealPending';
-    pd.innerHTML = '<span style="display:inline-block;width:12px;height:12px;border:2px solid #ffb347;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;vertical-align:middle;margin-right:6px"></span>Проверяем...';
-    body.appendChild(pd); body.scrollTop = body.scrollHeight;
-    // Decision
+    const typing = document.createElement('div'); typing.className = 'm-typing';
+    typing.innerHTML = '<span></span><span></span><span></span>';
+    body.appendChild(typing); body.scrollTop = body.scrollHeight;
+
     setTimeout(() => {
-      pd.remove();
-      const dec = document.createElement('div'); dec.className = 'm-bot';
-      dec.innerHTML = '<div style="font-size:12px;font-weight:700;color:#272443;margin-bottom:4px">&#10003; Ошибка снята</div><div style="font-size:11px;color:#5f5a89">Учитель согласился — эта ошибка не будет учитываться</div>';
-      dec.style.background = '#e6f9f0'; dec.style.border = '1.5px solid #b3e5d1';
-      body.appendChild(dec); body.scrollTop = body.scrollHeight;
+      typing.remove();
+      const q = document.createElement('div'); q.className = 'm-bot';
+      q.innerHTML = 'С чем ты не согласен?';
+      body.appendChild(q); body.scrollTop = body.scrollHeight;
+
+      // Quick reply chips
+      setTimeout(() => {
+        const chips = document.createElement('div'); chips.className = 'm-chips';
+        const options = ['Здесь нет ошибки', 'Не тот символ', 'Не понимаю ошибку', 'Не согласен'];
+        options.forEach(opt => {
+          const c = document.createElement('button'); c.className = 'm-chip';
+          c.textContent = opt;
+          c.onclick = () => pickChatReason(opt);
+          chips.appendChild(c);
+        });
+        body.appendChild(chips); body.scrollTop = body.scrollHeight;
+
+        const chipHint = document.createElement('div'); chipHint.className = 'tap-hint'; chipHint.id = 'chipHint';
+        chipHint.textContent = '☝ Выбери причину';
+        body.appendChild(chipHint);
+      }, 200);
+    }, 400);
+  }, 500);
+}
+
+function pickChatReason(reason) {
+  const body = document.getElementById('mock-chat-appeal');
+  // Remove chips + hint
+  const chips = body.querySelector('.m-chips'); if (chips) chips.remove();
+  const chipHint = document.getElementById('chipHint'); if (chipHint) chipHint.remove();
+
+  // Student reply
+  const sr = document.createElement('div'); sr.className = 'm-student'; sr.textContent = reason;
+  body.appendChild(sr); body.scrollTop = body.scrollHeight;
+
+  // Bot confirms with typing
+  setTimeout(() => {
+    const typing = document.createElement('div'); typing.className = 'm-typing';
+    typing.innerHTML = '<span></span><span></span><span></span>';
+    body.appendChild(typing); body.scrollTop = body.scrollHeight;
+
+    setTimeout(() => {
+      typing.remove();
+      const conf = document.createElement('div'); conf.className = 'm-bot';
+      conf.innerHTML = '&#10003; Запрос отправлен! Учитель рассмотрит в течение 72 часов.';
+      conf.style.background = '#e6f9f0'; conf.style.border = '1.5px solid #b3e5d1';
+      body.appendChild(conf); body.scrollTop = body.scrollHeight;
+
       const done = document.createElement('div'); done.className = 'done-badge'; done.textContent = '✓ Готово — листай дальше';
       body.appendChild(done);
       document.getElementById('btnNext').disabled = false;
-    }, 1500);
-  }, 600);
+    }, 500);
+  }, 300);
 }
 
 // ══════════════════════════════════════
@@ -994,16 +1078,99 @@ function initMockupReportAppeal() {
 
 function doReportAppeal(btn) {
   if (!btn || btn.dataset.done) return;
-  btn.dataset.done = '1';
-  btn.style.opacity = '.5';
-  // Insert result right after the button's error item
-  const slot = btn.closest('.r-error-item').querySelector('.r-appeal-result-slot');
+  const errorItem = btn.closest('.r-error-item');
+  const errorTitle = errorItem.querySelector('.r-error-num').textContent;
+  const errorDesc = errorItem.querySelector('.r-error-desc').textContent;
+
+  // Create overlay + sheet inside the phone frame
+  const phone = btn.closest('.phone-frame');
+  const overlay = document.createElement('div');
+  overlay.className = 'r-sheet-overlay open';
+  const sheet = document.createElement('div');
+  sheet.className = 'r-sheet';
+  sheet.innerHTML = `
+    <div class="r-sheet-header">
+      <div class="r-sheet-title">Попросить перепроверить</div>
+      <button class="r-sheet-close" onclick="closeReportSheet(this)">&#10005;</button>
+    </div>
+    <div class="r-sheet-ctx">
+      <div class="r-sheet-ctx-title">${errorTitle}</div>
+      <div class="r-sheet-ctx-desc">${errorDesc}</div>
+    </div>
+    <div>
+      <div class="r-sheet-q">С чем ты не согласен? <span>(можно несколько)</span></div>
+      <div class="r-sheet-checkboxes" style="margin-top:6px">
+        <label class="r-sheet-cb"><input type="checkbox" onchange="checkSheetSubmit(this)"><span class="r-sheet-cb-label">Здесь нет ошибки</span></label>
+        <label class="r-sheet-cb"><input type="checkbox" onchange="checkSheetSubmit(this)"><span class="r-sheet-cb-label">Неправильно распознал символ</span></label>
+        <label class="r-sheet-cb"><input type="checkbox" onchange="checkSheetSubmit(this)"><span class="r-sheet-cb-label">Не понимаю в чём ошибка</span></label>
+        <label class="r-sheet-cb"><input type="checkbox" onchange="checkSheetSubmit(this)"><span class="r-sheet-cb-label">Не согласен/а с ошибкой</span></label>
+        <label class="r-sheet-cb"><input type="checkbox" onchange="checkSheetSubmit(this)"><span class="r-sheet-cb-label">Другое: напишу в комментарии</span></label>
+      </div>
+    </div>
+    <div class="r-sheet-comment">
+      <div class="r-sheet-comment-label">Комментарий</div>
+      <textarea placeholder="Опиши подробно, что именно кажется неверным"></textarea>
+      <div class="r-sheet-hint">До 3 файлов, jpg/png/pdf, до 10 МБ каждый</div>
+    </div>
+    <div class="r-sheet-btns">
+      <button class="r-sheet-btn-submit" disabled onclick="submitReportSheet(this)">Отправить запрос</button>
+      <button class="r-sheet-btn-cancel" onclick="closeReportSheet(this)">Отменить</button>
+    </div>
+  `;
+  phone.appendChild(overlay);
+  phone.appendChild(sheet);
+  requestAnimationFrame(() => sheet.classList.add('open'));
+
+  // Store reference to the button
+  sheet.dataset.btnRef = '1';
+  btn._sheet = sheet;
+  btn._overlay = overlay;
+
+  overlay.addEventListener('click', () => closeReportSheet(overlay));
+
+  const hint = document.getElementById('reportAppealHint');
+  if (hint) hint.textContent = '☝ Выбери причину и нажми «Отправить»';
+}
+
+function checkSheetSubmit(cb) {
+  const sheet = cb.closest('.r-sheet');
+  const any = sheet.querySelectorAll('.r-sheet-checkboxes input:checked').length > 0;
+  sheet.querySelector('.r-sheet-btn-submit').disabled = !any;
+}
+
+function submitReportSheet(submitBtn) {
+  const sheet = submitBtn.closest('.r-sheet');
+  const phone = sheet.closest('.phone-frame');
+  const overlay = phone.querySelector('.r-sheet-overlay');
+
+  // Close sheet
+  sheet.classList.remove('open');
+  overlay.classList.remove('open');
+  setTimeout(() => { sheet.remove(); overlay.remove(); }, 350);
+
+  // Mark all dispute buttons as done
+  phone.querySelectorAll('.r-dispute-live').forEach(b => {
+    b.dataset.done = '1';
+    b.style.opacity = '.5';
+  });
+
+  // Show success in first error slot
+  const slot = phone.querySelector('.r-appeal-result-slot');
   if (slot) {
     slot.innerHTML = '<div class="r-appeal-result"><strong style="display:block;margin-bottom:3px">&#10003; Запрос отправлен</strong>Учитель рассмотрит обращение в течение 72 часов</div>';
   }
+
   const hint = document.getElementById('reportAppealHint');
   if (hint) hint.remove();
   document.getElementById('btnNext').disabled = false;
+}
+
+function closeReportSheet(el) {
+  const phone = el.closest('.phone-frame');
+  const sheet = phone.querySelector('.r-sheet');
+  const overlay = phone.querySelector('.r-sheet-overlay');
+  if (sheet) { sheet.classList.remove('open'); setTimeout(() => sheet.remove(), 350); }
+  if (overlay) { overlay.classList.remove('open'); setTimeout(() => overlay.remove(), 350); }
 }
 
 // ══════════════════════════════════════
