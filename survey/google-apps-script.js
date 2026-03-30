@@ -41,7 +41,6 @@ function doPost(e) {
     data.r3_q2 || '',
     data.r3_q2_detail || '',
     data.f_q1 || '',
-    data.f_q2 || '',
   ]);
 
   return ContentService
