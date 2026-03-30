@@ -211,6 +211,7 @@ input[type="text"]::placeholder{color:var(--text-dim);letter-spacing:0}
 .m-mistake-diff{margin-top:6px;font-size:10px;font-weight:600;color:#7f7aab}
 .m-mistake-was{display:inline-block;padding:2px 8px;border-radius:6px;background:rgba(255,112,112,.1);color:#ff7070;text-decoration:line-through;font-size:11px;margin-top:2px}
 .m-mistake-now{display:inline-block;padding:2px 8px;border-radius:6px;background:rgba(15,187,166,.1);color:#0fbba6;font-size:11px;margin-top:2px}
+.m-encourage{margin-top:6px;padding:6px 8px;background:rgba(15,187,166,.08);border-radius:8px;font-size:10px;color:#0a8f7e;line-height:1.4}
 .m-appeal-btn{display:block;margin:8px 0 4px auto;padding:5px 10px;border-radius:8px;border:1.5px solid #7457fe;background:none;color:#7457fe;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit}
 .m-cta{max-width:85%;align-self:flex-start;animation:fu .3s ease-out}
 .m-cta button{display:flex;align-items:center;gap:6px;padding:10px 16px;border-radius:14px;border-bottom-left-radius:4px;border:none;background:linear-gradient(135deg,#7457fe,#9b7dff);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;width:100%}
@@ -385,6 +386,8 @@ input[type="text"]::placeholder{color:var(--text-dim);letter-spacing:0}
   color:#333435;
   margin:0;
 }
+.r-encourage{margin-top:6px;padding:8px 10px;background:rgba(15,187,166,.08);border-radius:10px;font-size:11px;color:#0a8f7e;line-height:1.4}
+
 .r-dispute-btn{
   display:inline-flex;
   align-items:center;
@@ -833,6 +836,7 @@ function reportHTML(grade, opts) {
             <div class="r-error-block-label">Правильный ответ</div>
             <div class="r-error-block-val">-0,5c&sup2;(2c-3) = -0,5c&sup2; &times; 2c - 0,5c&sup2; &times; (-3) = -c&sup3; + 1,5c&sup2;</div>
           </div>
+          <div class="r-encourage">&#128154; Попробуй вычитать по шагам: сначала вынеси общий множитель, потом проверь знаки в скобках.</div>
           ${interactive ? '<div class="r-appeal-result-slot"></div>' : ''}
         </div>
         <div class="r-error-item">
@@ -849,6 +853,7 @@ function reportHTML(grade, opts) {
             <div class="r-error-block-label">Правильный ответ</div>
             <div class="r-error-block-val">(2a&sup2; - b)(3-a) = 6a&sup2; - 2a&sup3; - 3b + ab</div>
           </div>
+          <div class="r-encourage">&#128154; Совет: после получения ответа подставь числа и проверь — это ловит знаковые ошибки.</div>
           ${interactive ? '<div class="r-appeal-result-slot"></div>' : ''}
         </div>
       </div>` : '';
@@ -911,7 +916,8 @@ function initMockupChatErrors() {
   if (!body) return;
   body.innerHTML = `
     <div class="m-grade" style="margin-bottom:4px"><div class="m-grade-circle g4">4</div><div class="m-grade-text"><strong>Оценка за работу</strong>Молодец! Почти всё верно.</div></div>
-    <div class="m-bot">Есть 2 момента, на которые стоит обратить внимание:</div>
+    <div class="m-bot">Начну с хорошего: молодец, что справился с таким объёмным текстом!</div>
+    <div class="m-bot">Есть пара моментов, на которые стоит обратить внимание:</div>
     <div class="m-mistake" id="cm1">
       <div class="m-mistake-hdr" onclick="toggleMistake('cm1')">
         <div class="m-mistake-icon minor">~</div>
@@ -925,6 +931,7 @@ function initMockupChatErrors() {
           <div class="m-mistake-was">неловкость (исправление)</div>
           <div class="m-mistake-diff">Как должно быть:</div>
           <div class="m-mistake-now">неловкость</div>
+          <div class="m-encourage">&#128154; Мелочь, но аккуратность — часть оценки. В следующий раз пиши уверенно!</div>
         </div>
       </div>
     </div>
@@ -941,6 +948,7 @@ function initMockupChatErrors() {
           <div class="m-mistake-was">Него всё валилось...</div>
           <div class="m-mistake-diff">Как должно быть:</div>
           <div class="m-mistake-now">У него всё валилось...</div>
+          <div class="m-encourage">&#128154; Совет: после списывания перечитай текст вслух — пропущенные слова сразу «зазвучат».</div>
         </div>
       </div>
     </div>
@@ -980,18 +988,20 @@ function initMockupChatAppeal() {
   if (!body) return;
   body.innerHTML = `
     <div class="m-grade" style="margin-bottom:4px"><div class="m-grade-circle g3">3</div><div class="m-grade-text"><strong>Оценка за работу</strong>Неплохо, но можно лучше!</div></div>
+    <div class="m-bot">Хороший старт! Видно, что ты старался. Есть один момент:</div>
     <div class="m-mistake expanded" id="ca1">
       <div class="m-mistake-hdr">
         <div class="m-mistake-icon critical">!</div>
         <div class="m-mistake-title">Безударная гласная в корне</div>
       </div>
-      <div class="m-mistake-body" style="max-height:250px">
+      <div class="m-mistake-body" style="max-height:300px">
         <div class="m-mistake-content">
           Слово «корова» — словарное, его нужно запомнить.
           <div class="m-mistake-diff">В твоем ответе:</div>
           <div class="m-mistake-was">карова</div>
           <div class="m-mistake-diff">Как должно быть:</div>
           <div class="m-mistake-now">корова</div>
+          <div class="m-encourage">&#128154; Словарные слова — это просто тренировка памяти. Попробуй написать его 3 раза — и запомнится!</div>
           <button class="m-appeal-btn" id="appealBtn1" onclick="doChatAppeal()">Оспорить ошибку</button>
         </div>
       </div>
@@ -1194,22 +1204,25 @@ const screens = [
   { id:'r1_intro', type:'round_intro', round:'Раунд 1 из 3', title:'Оценка и обратная связь', desc:'Сейчас ты увидишь два варианта — как ученику показывают оценку и отзыв учителя. Потрогай каждый.' },
   { id:'r1_chat', type:'mockup', variant:'a', variantTitle:'Чат с ботом', variantDesc:'Бот пишет сообщения по одному', instruction:'Смотри — сообщения появятся сами', mockup:'chatGrade' },
   { id:'r1_report', type:'mockup', variant:'b', variantTitle:'Страница-отчёт', variantDesc:'Оценка и отзыв на одной странице', instruction:'Прокрути экран и посмотри', mockup:'reportGrade' },
-  { id:'r1_q1', type:'choice', icon:'&#129504;', number:1, total:7, text:'Какой формат показа оценки понравился больше?', choices:['Чат с ботом','Страница-отчёт','Оба нормально','Оба не понравились'], required:true },
-  { id:'r1_q2', type:'textarea', icon:'&#128172;', number:2, total:7, text:'Почему выбрал(а) именно этот?', placeholder:'Мне больше нравится, потому что...', required:false },
+  { id:'r1_q1', type:'choice', icon:'&#129504;', number:1, total:9, text:'Какой формат показа оценки понравился больше?', choices:['Чат с ботом','Страница-отчёт','Оба нормально','Оба не понравились'], required:true },
+  { id:'r1_q2', type:'textarea', icon:'&#128172;', number:2, total:9, text:'Почему выбрал(а) именно этот?', placeholder:'Мне больше нравится, потому что...', required:false },
   // ── Round 2: Errors ──
   { id:'r2_intro', type:'round_intro', round:'Раунд 2 из 3', title:'Разбор ошибок', desc:'Теперь посмотри, как показан разбор ошибок в каждом варианте.' },
   { id:'r2_chat', type:'mockup', variant:'a', variantTitle:'Чат с ботом', variantDesc:'Ошибки раскрываются по нажатию', instruction:'Нажми на карточку ошибки', mockup:'chatErrors' },
   { id:'r2_report', type:'mockup', variant:'b', variantTitle:'Страница-отчёт', variantDesc:'Все ошибки видны сразу', instruction:'Прокрути и посмотри разбор', mockup:'reportErrors' },
-  { id:'r2_q1', type:'choice', icon:'&#128270;', number:3, total:7, text:'Где разбор ошибок понятнее?', choices:['В чате — по одной, с раскрытием','На странице — все сразу с деталями','Одинаково','Оба непонятные'], required:true },
-  { id:'r2_q2', type:'textarea', icon:'&#128221;', number:4, total:7, text:'Что именно было понятнее или удобнее?', placeholder:'Мне удобнее, когда...', required:false },
+  { id:'r2_q1', type:'choice', icon:'&#128270;', number:3, total:9, text:'Где разбор ошибок понятнее?', choices:['В чате — по одной, с раскрытием','На странице — все сразу с деталями','Одинаково','Оба непонятные'], required:true },
+  { id:'r2_q2', type:'textarea', icon:'&#128221;', number:4, total:9, text:'Что именно было понятнее или удобнее?', placeholder:'Мне удобнее, когда...', required:false },
   // ── Round 3: Appeal ──
   { id:'r3_intro', type:'round_intro', round:'Раунд 3 из 3', title:'Оспаривание ошибки', desc:'Иногда ученик считает, что ошибка выставлена неправильно. Посмотри, как это работает.' },
   { id:'r3_chat', type:'mockup', variant:'a', variantTitle:'Чат с ботом', variantDesc:'Кнопка «Оспорить» внутри ошибки', instruction:'Нажми «Оспорить ошибку»', mockup:'chatAppeal' },
   { id:'r3_report', type:'mockup', variant:'b', variantTitle:'Страница-отчёт', variantDesc:'Кнопка «Я не согласен» рядом', instruction:'Нажми «Я не согласен»', mockup:'reportAppeal' },
-  { id:'r3_q1', type:'choice', icon:'&#9888;&#65039;', number:5, total:7, text:'Где удобнее оспаривать ошибку?', choices:['В чате','На странице','Одинаково','Не стал(а) бы оспаривать'], required:true },
-  { id:'r3_q2', type:'choice', icon:'&#128588;', number:6, total:7, text:'Ты бы вообще пользовался(лась) кнопкой оспаривания?', choices:['Да, если считаю что ошибки нет','Может быть, но побоялся(лась) бы','Нет, не вижу смысла'], followUp:{triggers:[0,1],text:'В какой ситуации?',placeholder:'Например, если...'}, required:true },
+  { id:'r3_q1', type:'choice', icon:'&#9888;&#65039;', number:5, total:9, text:'Где удобнее оспаривать ошибку?', choices:['В чате','На странице','Одинаково','Не стал(а) бы оспаривать'], required:true },
+  { id:'r3_q2', type:'choice', icon:'&#128588;', number:6, total:9, text:'Ты бы вообще пользовался(лась) кнопкой оспаривания?', choices:['Да, если считаю что ошибки нет','Может быть, но побоялся(лась) бы','Нет, не вижу смысла'], followUp:{triggers:[0,1],text:'В какой ситуации?',placeholder:'Например, если...'}, required:true },
+  // ── Tone & Motivation ──
+  { id:'t_q1', type:'choice', icon:'&#128172;', number:7, total:9, text:'Как тебе тон обратной связи?', hint:'Бот говорил «начну с хорошего», «молодец», давал советы после ошибок.', choices:['Мотивирует — хочется стараться','Приятно, но на оценку не влияет','Всё равно — главное оценка','Слишком мягко — лучше прямо сказать где ошибки'], required:true },
+  { id:'t_q2', type:'choice', icon:'&#128154;', number:8, total:9, text:'Зелёные подсказки после каждой ошибки — полезны?', hint:'Например: «Попробуй написать слово 3 раза — и запомнится!»', choices:['Да, помогают понять как исправить','Приятно, но не очень полезно','Не заметил(а) их','Лучше без них'], required:true },
   // ── Final ──
-  { id:'f_q1', type:'multiselect', icon:'&#128161;', number:7, total:7, text:'Чего не хватает на экране обратной связи?', hint:'Выбери всё важное.', options:[{label:'Задать вопрос учителю'},{label:'Похожие задания для тренировки'},{label:'Видео-разбор от учителя'},{label:'Статистика по ошибкам'},{label:'Сравнение с прошлой работой'},{label:'Подсказки, как исправить'},{label:'Возможность пересдать'},{label:'Всего хватает',exclusive:true}], required:true, minSelect:1 },
+  { id:'f_q1', type:'multiselect', icon:'&#128161;', number:9, total:9, text:'Чего не хватает на экране обратной связи?', hint:'Выбери всё важное.', options:[{label:'Задать вопрос учителю'},{label:'Похожие задания для тренировки'},{label:'Видео-разбор от учителя'},{label:'Статистика по ошибкам'},{label:'Сравнение с прошлой работой'},{label:'Подсказки, как исправить'},{label:'Возможность пересдать'},{label:'Всего хватает',exclusive:true}], required:true, minSelect:1 },
   // Finish
   { id:'finish', type:'finish' },
 ];
@@ -1258,7 +1271,7 @@ function render() {
       </div>
       <div class="welcome-pills">
         <div class="pill">&#9201; 4 минуты</div>
-        <div class="pill">3 раунда + 8 вопросов</div>
+        <div class="pill">3 раунда + 9 вопросов</div>
         <div class="pill">&#128274; анонимно</div>
       </div>`;
     nav.style.display = 'flex';
