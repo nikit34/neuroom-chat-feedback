@@ -798,27 +798,17 @@ function reportHTML(grade, opts) {
     2:'Есть серьёзные ошибки при умножении. Давай разберём по порядку.',
     3:'Уверенное выполнение умножения, но есть ошибки в знаках при группировке.',
     4:'Уверенное выполнение умножения и деления десятичных дробей на целые числа и на разрядные единицы!',
+    5:'Все задания выполнены без ошибок. Отличная работа!',
   };
   const bg = gradeColors[grade] || '#6240ff';
   const interactive = opts.appealResult;
   const hint = opts.hint || '';
+  const hasErrors = grade < 5;
+  const feedbackText = grade === 5
+    ? 'Все задания выполнены верно! Продолжай в том же духе. Если хочешь дополнительную практику — попробуй задания повышенной сложности.'
+    : 'Работа выполнена очень хорошо! Чтобы избежать подобных ошибок в будущем, советую после применения формулы мысленно проговаривать каждый шаг. Например: &laquo;Первое слагаемое &mdash; 3y, его квадрат &mdash; 9y&sup2;. Второе слагаемое &mdash; 2, его квадрат &mdash; 4.&raquo; Это поможет избежать путаницы.';
 
-  return `
-    <div class="r-screen">
-      <div class="r-score">
-        <div class="r-score-grade">
-          <div class="r-score-grade-label">Твоя оценка</div>
-          <div class="r-score-grade-val" style="background:${bg}">${grade}</div>
-        </div>
-        <div class="r-score-text">
-          <strong>${gradeTitles[grade]}</strong>
-          ${gradeDescs[grade]}
-        </div>
-      </div>
-      <div class="r-feedback">
-        <h3>Обратная связь по работе</h3>
-        <p>Работа выполнена очень хорошо! Чтобы избежать подобных ошибок в будущем, советую после применения формулы мысленно проговаривать каждый шаг. Например: &laquo;Первое слагаемое &mdash; 3y, его квадрат &mdash; 9y&sup2;. Второе слагаемое &mdash; 2, его квадрат &mdash; 4.&raquo; Это поможет избежать путаницы.</p>
-      </div>
+  const errorsBlock = hasErrors ? `
       <div class="r-section-title">Разбор ошибок</div>
       <div class="r-pages-card">
         <div class="r-pages-head">
@@ -861,10 +851,12 @@ function reportHTML(grade, opts) {
           </div>
           ${interactive ? '<div class="r-appeal-result-slot"></div>' : ''}
         </div>
-      </div>
+      </div>` : '';
+
+  const pagesBlock = `
       <div class="r-page-collapsed">
         <div class="r-pages-head">
-          <div class="r-pages-head-title">Страница 2</div>
+          <div class="r-pages-head-title">Страница ${hasErrors ? '2' : '1'}</div>
           <div class="r-pages-head-right">
             <div class="r-pages-chip r-pages-chip--ok">Ошибок: 0</div>
             <button class="r-pages-toggle" type="button">&#709;</button>
@@ -873,13 +865,32 @@ function reportHTML(grade, opts) {
       </div>
       <div class="r-page-collapsed">
         <div class="r-pages-head">
-          <div class="r-pages-head-title">Страница 3</div>
+          <div class="r-pages-head-title">Страница ${hasErrors ? '3' : '2'}</div>
           <div class="r-pages-head-right">
             <div class="r-pages-chip r-pages-chip--ok">Ошибок: 0</div>
             <button class="r-pages-toggle" type="button">&#709;</button>
           </div>
         </div>
+      </div>`;
+
+  return `
+    <div class="r-screen">
+      <div class="r-score">
+        <div class="r-score-grade">
+          <div class="r-score-grade-label">Твоя оценка</div>
+          <div class="r-score-grade-val" style="background:${bg}">${grade}</div>
+        </div>
+        <div class="r-score-text">
+          <strong>${gradeTitles[grade]}</strong>
+          ${gradeDescs[grade]}
+        </div>
       </div>
+      <div class="r-feedback">
+        <h3>Обратная связь по работе</h3>
+        <p>${feedbackText}</p>
+      </div>
+      ${errorsBlock}
+      ${pagesBlock}
       ${hint}
     </div>`;
 }
