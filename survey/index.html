@@ -779,11 +779,11 @@ function autoPlayChat(bodyId, msgs, onDone) {
 // ══════════════════════════════════════
 function initMockupChatGrade() {
   autoPlayChat('mock-chat-grade', [
-    {type:'bot', text:'Привет! &#128075; Посмотрел твою домашку по предмету «Алгебра».'},
-    {type:'bot', text:'Вижу, что ты взялся за все задания — это уже хорошо!'},
+    {type:'bot', text:'Привет! &#128075; Посмотрел твою домашку по предмету «Математика».'},
+    {type:'bot', text:'Отличная работа! Все задания выполнены верно.'},
     {type:'sep', text:'Разбор работы'},
-    {type:'bot', text:'Основная проблема — знаки при вынесении множителя за скобку. Давай разберём.'},
-    {type:'grade', grade:2, label:'Оценка за работу', text:'Давай разберёмся вместе — всё получится!'},
+    {type:'bot', text:'Ошибок нет — молодец!'},
+    {type:'grade', grade:5, label:'Оценка за работу', text:'Отлично! Так держать!'},
   ]);
 }
 
@@ -887,7 +887,7 @@ function reportHTML(grade, opts) {
 function initMockupReportGrade() {
   const body = document.getElementById('mock-report-grade');
   if (!body) return;
-  body.innerHTML = reportHTML(2, {});
+  body.innerHTML = reportHTML(5, {});
   setTimeout(() => { document.getElementById('btnNext').disabled = false; }, 2500);
   body.addEventListener('scroll', () => { document.getElementById('btnNext').disabled = false; }, {once:true});
 }
