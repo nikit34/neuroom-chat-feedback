@@ -1184,13 +1184,13 @@ const screens = [
   { id:'r1_chat', type:'mockup', variant:'a', variantTitle:'Чат с ботом', variantDesc:'Бот пишет сообщения по одному', instruction:'Смотри — сообщения появятся сами', mockup:'chatGrade' },
   { id:'r1_report', type:'mockup', variant:'b', variantTitle:'Страница-отчёт', variantDesc:'Оценка и отзыв на одной странице', instruction:'Прокрути экран и посмотри', mockup:'reportGrade' },
   { id:'r1_q1', type:'choice', icon:'&#129504;', number:1, total:8, text:'Какой формат показа оценки понравился больше?', choices:['Чат с ботом','Страница-отчёт','Оба нормально','Оба не понравились'], required:true },
-  { id:'r1_q2', type:'textarea', icon:'&#128172;', number:2, total:8, text:'Почему выбрал(а) именно этот?', placeholder:'Мне больше нравится, потому что...', required:true },
+  { id:'r1_q2', type:'textarea', icon:'&#128172;', number:2, total:8, text:'Почему выбрал(а) именно этот?', placeholder:'Мне больше нравится, потому что...', required:false },
   // ── Round 2: Errors ──
   { id:'r2_intro', type:'round_intro', round:'Раунд 2 из 3', title:'Разбор ошибок', desc:'Теперь посмотри, как показан разбор ошибок в каждом варианте.' },
   { id:'r2_chat', type:'mockup', variant:'a', variantTitle:'Чат с ботом', variantDesc:'Ошибки раскрываются по нажатию', instruction:'Нажми на карточку ошибки', mockup:'chatErrors' },
   { id:'r2_report', type:'mockup', variant:'b', variantTitle:'Страница-отчёт', variantDesc:'Все ошибки видны сразу', instruction:'Прокрути и посмотри разбор', mockup:'reportErrors' },
   { id:'r2_q1', type:'choice', icon:'&#128270;', number:3, total:8, text:'Где разбор ошибок понятнее?', choices:['В чате — по одной, с раскрытием','На странице — все сразу с деталями','Одинаково','Оба непонятные'], required:true },
-  { id:'r2_q2', type:'textarea', icon:'&#128221;', number:4, total:8, text:'Что именно было понятнее или удобнее?', placeholder:'Мне удобнее, когда...', required:true },
+  { id:'r2_q2', type:'textarea', icon:'&#128221;', number:4, total:8, text:'Что именно было понятнее или удобнее?', placeholder:'Мне удобнее, когда...', required:false },
   // ── Round 3: Appeal ──
   { id:'r3_intro', type:'round_intro', round:'Раунд 3 из 3', title:'Оспаривание ошибки', desc:'Иногда ученик считает, что ошибка выставлена неправильно. Посмотри, как это работает.' },
   { id:'r3_chat', type:'mockup', variant:'a', variantTitle:'Чат с ботом', variantDesc:'Кнопка «Оспорить» внутри ошибки', instruction:'Нажми «Оспорить ошибку»', mockup:'chatAppeal' },
