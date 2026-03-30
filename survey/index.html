@@ -769,6 +769,7 @@ function autoPlayChat(bodyId, msgs, onDone) {
         el.innerHTML = `<div class="m-grade-circle g${m.grade}">${m.grade}</div><div class="m-grade-text"><strong>${m.label}</strong>${m.text}</div>`;
       }
       body.appendChild(el);
+      iosScrollFix(body);
       body.scrollTop = body.scrollHeight;
       setTimeout(showNext, 100);
     }, delay);
@@ -964,8 +965,19 @@ function initMockupChatErrors() {
   }, 300);
 }
 
+// iOS Safari won't scroll if content initially fits and then grows.
+// Toggle overflow-y to force recalculation.
+function iosScrollFix(el) {
+  var body = el.closest ? el.closest('.phone-body') : el;
+  if (!body) return;
+  body.style.overflowY = 'hidden';
+  body.offsetHeight;
+  body.style.overflowY = 'scroll';
+}
+
 function toggleMistake(id) {
   document.getElementById(id).classList.toggle('expanded');
+  iosScrollFix(document.getElementById(id));
 }
 
 // ══════════════════════════════════════
@@ -1016,19 +1028,19 @@ function doChatAppeal() {
 
   // Student message
   const sm = document.createElement('div'); sm.className = 'm-student'; sm.textContent = 'Хочу оспорить эту ошибку';
-  body.appendChild(sm); body.scrollTop = body.scrollHeight;
+  body.appendChild(sm); iosScrollFix(body); body.scrollTop = body.scrollHeight;
 
   // Bot asks reason with typing
   setTimeout(() => {
     const typing = document.createElement('div'); typing.className = 'm-typing';
     typing.innerHTML = '<span></span><span></span><span></span>';
-    body.appendChild(typing); body.scrollTop = body.scrollHeight;
+    body.appendChild(typing); iosScrollFix(body); body.scrollTop = body.scrollHeight;
 
     setTimeout(() => {
       typing.remove();
       const q = document.createElement('div'); q.className = 'm-bot';
       q.innerHTML = 'С чем ты не согласен?';
-      body.appendChild(q); body.scrollTop = body.scrollHeight;
+      body.appendChild(q); iosScrollFix(body); body.scrollTop = body.scrollHeight;
 
       // Quick reply chips
       setTimeout(() => {
@@ -1040,7 +1052,7 @@ function doChatAppeal() {
           c.onclick = () => pickChatReason(opt);
           chips.appendChild(c);
         });
-        body.appendChild(chips); body.scrollTop = body.scrollHeight;
+        body.appendChild(chips); iosScrollFix(body); body.scrollTop = body.scrollHeight;
 
         const chipHint = document.createElement('div'); chipHint.className = 'tap-hint'; chipHint.id = 'chipHint';
         chipHint.textContent = '☝ Выбери причину';
@@ -1058,20 +1070,20 @@ function pickChatReason(reason) {
 
   // Student reply
   const sr = document.createElement('div'); sr.className = 'm-student'; sr.textContent = reason;
-  body.appendChild(sr); body.scrollTop = body.scrollHeight;
+  body.appendChild(sr); iosScrollFix(body); body.scrollTop = body.scrollHeight;
 
   // Bot confirms with typing
   setTimeout(() => {
     const typing = document.createElement('div'); typing.className = 'm-typing';
     typing.innerHTML = '<span></span><span></span><span></span>';
-    body.appendChild(typing); body.scrollTop = body.scrollHeight;
+    body.appendChild(typing); iosScrollFix(body); body.scrollTop = body.scrollHeight;
 
     setTimeout(() => {
       typing.remove();
       const conf = document.createElement('div'); conf.className = 'm-bot';
       conf.innerHTML = '&#10003; Запрос отправлен! Учитель рассмотрит в течение 72 часов.';
       conf.style.background = '#e6f9f0'; conf.style.border = '1.5px solid #b3e5d1';
-      body.appendChild(conf); body.scrollTop = body.scrollHeight;
+      body.appendChild(conf); iosScrollFix(body); body.scrollTop = body.scrollHeight;
 
       const done = document.createElement('div'); done.className = 'done-badge'; done.textContent = '✓ Готово — листай дальше';
       body.appendChild(done);
