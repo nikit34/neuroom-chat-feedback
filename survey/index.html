@@ -1204,25 +1204,27 @@ const screens = [
   { id:'r1_intro', type:'round_intro', round:'Раунд 1 из 3', title:'Оценка и обратная связь', desc:'Сейчас ты увидишь два варианта — как ученику показывают оценку и отзыв учителя. Потрогай каждый.' },
   { id:'r1_chat', type:'mockup', variant:'a', variantTitle:'Чат с ботом', variantDesc:'Бот пишет сообщения по одному', instruction:'Смотри — сообщения появятся сами', mockup:'chatGrade' },
   { id:'r1_report', type:'mockup', variant:'b', variantTitle:'Страница-отчёт', variantDesc:'Оценка и отзыв на одной странице', instruction:'Прокрути экран и посмотри', mockup:'reportGrade' },
-  { id:'r1_q1', type:'choice', icon:'&#129504;', number:1, total:9, text:'Какой формат показа оценки понравился больше?', choices:['Чат с ботом','Страница-отчёт','Оба нормально','Оба не понравились'], required:true },
-  { id:'r1_q2', type:'textarea', icon:'&#128172;', number:2, total:9, text:'Почему выбрал(а) именно этот?', placeholder:'Мне больше нравится, потому что...', required:false },
+  { id:'r1_q1', type:'choice', icon:'&#129504;', number:1, total:11, text:'Какой формат показа оценки понравился больше?', choices:['Чат с ботом','Страница-отчёт','Оба нормально','Оба не понравились'], required:true },
+  { id:'r1_q2', type:'textarea', icon:'&#128172;', number:2, total:11, text:'Почему выбрал(а) именно этот?', placeholder:'Мне больше нравится, потому что...', required:false },
   // ── Round 2: Errors ──
   { id:'r2_intro', type:'round_intro', round:'Раунд 2 из 3', title:'Разбор ошибок', desc:'Теперь посмотри, как показан разбор ошибок в каждом варианте.' },
   { id:'r2_chat', type:'mockup', variant:'a', variantTitle:'Чат с ботом', variantDesc:'Ошибки раскрываются по нажатию', instruction:'Нажми на карточку ошибки', mockup:'chatErrors' },
   { id:'r2_report', type:'mockup', variant:'b', variantTitle:'Страница-отчёт', variantDesc:'Все ошибки видны сразу', instruction:'Прокрути и посмотри разбор', mockup:'reportErrors' },
-  { id:'r2_q1', type:'choice', icon:'&#128270;', number:3, total:9, text:'Где разбор ошибок понятнее?', choices:['В чате — по одной, с раскрытием','На странице — все сразу с деталями','Одинаково','Оба непонятные'], required:true },
-  { id:'r2_q2', type:'textarea', icon:'&#128221;', number:4, total:9, text:'Что именно было понятнее или удобнее?', placeholder:'Мне удобнее, когда...', required:false },
+  { id:'r2_q1', type:'choice', icon:'&#128270;', number:3, total:11, text:'Где разбор ошибок понятнее?', choices:['В чате — по одной, с раскрытием','На странице — все сразу с деталями','Одинаково','Оба непонятные'], required:true },
+  { id:'r2_q2', type:'textarea', icon:'&#128221;', number:4, total:11, text:'Что именно было понятнее или удобнее?', placeholder:'Мне удобнее, когда...', required:false },
   // ── Round 3: Appeal ──
   { id:'r3_intro', type:'round_intro', round:'Раунд 3 из 3', title:'Оспаривание ошибки', desc:'Иногда ученик считает, что ошибка выставлена неправильно. Посмотри, как это работает.' },
   { id:'r3_chat', type:'mockup', variant:'a', variantTitle:'Чат с ботом', variantDesc:'Кнопка «Оспорить» внутри ошибки', instruction:'Нажми «Оспорить ошибку»', mockup:'chatAppeal' },
   { id:'r3_report', type:'mockup', variant:'b', variantTitle:'Страница-отчёт', variantDesc:'Кнопка «Я не согласен» рядом', instruction:'Нажми «Я не согласен»', mockup:'reportAppeal' },
-  { id:'r3_q1', type:'choice', icon:'&#9888;&#65039;', number:5, total:9, text:'Где удобнее оспаривать ошибку?', choices:['В чате','На странице','Одинаково','Не стал(а) бы оспаривать'], required:true },
-  { id:'r3_q2', type:'choice', icon:'&#128588;', number:6, total:9, text:'Ты бы вообще пользовался(лась) кнопкой оспаривания?', choices:['Да, если считаю что ошибки нет','Может быть, но побоялся(лась) бы','Нет, не вижу смысла'], followUp:{triggers:[0,1],text:'В какой ситуации?',placeholder:'Например, если...'}, required:true },
+  { id:'r3_q1', type:'choice', icon:'&#9888;&#65039;', number:5, total:11, text:'Где удобнее оспаривать ошибку?', choices:['В чате','На странице','Одинаково','Не стал(а) бы оспаривать'], required:true },
+  { id:'r3_q2', type:'choice', icon:'&#128588;', number:6, total:11, text:'Ты бы вообще пользовался(лась) кнопкой оспаривания?', choices:['Да, если считаю что ошибки нет','Может быть, но побоялся(лась) бы','Нет, не вижу смысла'], followUp:{triggers:[0,1],text:'В какой ситуации?',placeholder:'Например, если...'}, required:true },
   // ── Tone & Motivation ──
-  { id:'t_q1', type:'choice', icon:'&#128172;', number:7, total:9, text:'Как тебе тон обратной связи?', hint:'Бот говорил «начну с хорошего», «молодец», давал советы после ошибок.', choices:['Мотивирует — хочется стараться','Приятно, но на оценку не влияет','Всё равно — главное оценка','Слишком мягко — лучше прямо сказать где ошибки'], required:true },
-  { id:'t_q2', type:'choice', icon:'&#128154;', number:8, total:9, text:'Зелёные подсказки после каждой ошибки — полезны?', hint:'Например: «Попробуй написать слово 3 раза — и запомнится!»', choices:['Да, помогают понять как исправить','Приятно, но не очень полезно','Не заметил(а) их','Лучше без них'], required:true },
+  { id:'t_q1', type:'choice', icon:'&#128172;', number:7, total:11, text:'Как тебе тон обратной связи?', hint:'Бот говорил «начну с хорошего», «молодец», давал советы после ошибок.', choices:['Мотивирует — хочется стараться','Приятно, но на оценку не влияет','Всё равно — главное оценка','Слишком мягко — лучше прямо сказать где ошибки'], required:true },
+  { id:'t_q2', type:'choice', icon:'&#128154;', number:8, total:11, text:'Зелёные подсказки после каждой ошибки — полезны?', hint:'Например: «Попробуй написать слово 3 раза — и запомнится!»', choices:['Да, помогают понять как исправить','Приятно, но не очень полезно','Не заметил(а) их','Лучше без них'], required:true },
+  { id:'t_q3', type:'choice', icon:'&#128640;', number:9, total:11, text:'После такой обратной связи тебе хочется сдать следующую домашку?', choices:['Да, точно сдам','Скорее да','Без разницы','Скорее нет'], required:true },
+  { id:'t_q4', type:'multiselect', icon:'&#127775;', number:10, total:11, text:'Что больше всего мотивирует сдавать домашку вовремя?', hint:'Можно выбрать несколько.', options:[{label:'Хорошая оценка'},{label:'Похвала (текст от учителя)'},{label:'Понятный разбор ошибок'},{label:'Тренировка на ошибках'},{label:'Возможность оспорить'},{label:'Ничего из этого',exclusive:true}], required:true, minSelect:1 },
   // ── Final ──
-  { id:'f_q1', type:'multiselect', icon:'&#128161;', number:9, total:9, text:'Чего не хватает на экране обратной связи?', hint:'Выбери всё важное.', options:[{label:'Задать вопрос учителю'},{label:'Похожие задания для тренировки'},{label:'Видео-разбор от учителя'},{label:'Статистика по ошибкам'},{label:'Сравнение с прошлой работой'},{label:'Подсказки, как исправить'},{label:'Возможность пересдать'},{label:'Всего хватает',exclusive:true}], required:true, minSelect:1 },
+  { id:'f_q1', type:'multiselect', icon:'&#128161;', number:11, total:11, text:'Чего не хватает на экране обратной связи?', hint:'Выбери всё важное.', options:[{label:'Задать вопрос учителю'},{label:'Похожие задания для тренировки'},{label:'Видео-разбор от учителя'},{label:'Статистика по ошибкам'},{label:'Сравнение с прошлой работой'},{label:'Подсказки, как исправить'},{label:'Возможность пересдать'},{label:'Всего хватает',exclusive:true}], required:true, minSelect:1 },
   // Finish
   { id:'finish', type:'finish' },
 ];
@@ -1271,7 +1273,7 @@ function render() {
       </div>
       <div class="welcome-pills">
         <div class="pill">&#9201; 4 минуты</div>
-        <div class="pill">3 раунда + 9 вопросов</div>
+        <div class="pill">3 раунда + 11 вопросов</div>
         <div class="pill">&#128274; анонимно</div>
       </div>`;
     nav.style.display = 'flex';
