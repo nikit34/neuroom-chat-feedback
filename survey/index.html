@@ -147,7 +147,7 @@ input[type="text"]::placeholder{color:var(--text-dim);letter-spacing:0}
 .phone-header-avatar{width:30px;height:30px;border-radius:50%;background:rgba(116,87,254,.08);display:flex;align-items:center;justify-content:center;font-size:14px}
 .phone-header-name{font-size:14px;font-weight:600;color:#272443}
 .phone-header-sub{font-size:11px;color:#0fbba6}
-.phone-body{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px;scroll-behavior:smooth}
+.phone-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px;display:flex;flex-direction:column;gap:6px;scroll-behavior:smooth}
 .phone-body::-webkit-scrollbar{width:2px}
 .phone-body::-webkit-scrollbar-thumb{background:#d0cde1;border-radius:2px}
 .phone-input-bar{display:flex;align-items:center;gap:6px;padding:8px 12px 20px;border-top:1px solid #f2f2f2;background:#fff}
@@ -206,7 +206,7 @@ input[type="text"]::placeholder{color:var(--text-dim);letter-spacing:0}
 .m-mistake-chevron{color:#b0adc4;font-size:10px;transition:transform .2s}
 .m-mistake.expanded .m-mistake-chevron{transform:rotate(180deg)}
 .m-mistake-body{max-height:0;overflow:hidden;transition:max-height .3s ease}
-.m-mistake.expanded .m-mistake-body{max-height:250px}
+.m-mistake.expanded .m-mistake-body{max-height:500px}
 .m-mistake-content{padding:0 12px 10px;font-size:11px;line-height:1.4;color:#5f5a89}
 .m-mistake-diff{margin-top:6px;font-size:10px;font-weight:600;color:#7f7aab}
 .m-mistake-was{display:inline-block;padding:2px 8px;border-radius:6px;background:rgba(255,112,112,.1);color:#ff7070;text-decoration:line-through;font-size:11px;margin-top:2px}
@@ -994,7 +994,7 @@ function initMockupChatAppeal() {
         <div class="m-mistake-icon critical">!</div>
         <div class="m-mistake-title">Безударная гласная в корне</div>
       </div>
-      <div class="m-mistake-body" style="max-height:300px">
+      <div class="m-mistake-body" style="max-height:500px">
         <div class="m-mistake-content">
           Слово «корова» — словарное, его нужно запомнить.
           <div class="m-mistake-diff">В твоем ответе:</div>
