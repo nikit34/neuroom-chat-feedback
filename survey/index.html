@@ -136,7 +136,7 @@ input[type="text"]::placeholder{color:var(--text-dim);letter-spacing:0}
   background:#fff;
   border-radius:32px;
   border:3px solid #1d1d1f;
-  overflow:clip;
+  overflow:hidden;
   display:flex;flex-direction:column;
   box-shadow:0 12px 40px rgba(0,0,0,.35);
   position:relative;
@@ -695,7 +695,6 @@ function phoneFrame(bodyId, headerName, headerSub) {
       </div>
     </div>
     <div class="phone-body" id="${bodyId}"></div>
-    <div class="phone-input-bar"><div class="phone-input-field">Ответ ученика...</div></div>
   </div>`;
 }
 
@@ -986,9 +985,6 @@ function initMockupReportErrors() {
 function initMockupChatAppeal() {
   const body = document.getElementById('mock-chat-appeal');
   if (!body) return;
-  // Hide input bar to free up space on small screens
-  const inputBar = body.parentElement.querySelector('.phone-input-bar');
-  if (inputBar) inputBar.style.display = 'none';
   // Flat layout — no overflow:hidden containers that block touch scroll on iOS
   body.innerHTML = `
     <div class="m-grade" style="margin-bottom:4px"><div class="m-grade-circle g3">3</div><div class="m-grade-text"><strong>Оценка за работу</strong>Неплохо, но можно лучше!</div></div>
