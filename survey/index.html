@@ -206,7 +206,7 @@ input[type="text"]::placeholder{color:var(--text-dim);letter-spacing:0}
 .m-mistake-chevron{color:#b0adc4;font-size:10px;transition:transform .2s}
 .m-mistake.expanded .m-mistake-chevron{transform:rotate(180deg)}
 .m-mistake-body{max-height:0;overflow:hidden;transition:max-height .3s ease}
-.m-mistake.expanded .m-mistake-body{max-height:500px}
+.m-mistake.expanded .m-mistake-body{max-height:500px;overflow:visible}
 .m-mistake-content{padding:0 12px 10px;font-size:11px;line-height:1.4;color:#5f5a89}
 .m-mistake-diff{margin-top:6px;font-size:10px;font-weight:600;color:#7f7aab}
 .m-mistake-was{display:inline-block;padding:2px 8px;border-radius:6px;background:rgba(255,112,112,.1);color:#ff7070;text-decoration:line-through;font-size:11px;margin-top:2px}
@@ -1008,6 +1008,11 @@ function initMockupChatAppeal() {
     </div>
     <div class="tap-hint" id="appealHint">&#128072; Нажми «Оспорить ошибку»</div>
   `;
+  // Scroll phone-body so the appeal button is visible on small screens
+  setTimeout(() => {
+    const btn = document.getElementById('appealBtn1');
+    if (btn) btn.scrollIntoView({behavior:'smooth', block:'center'});
+  }, 400);
 }
 
 function doChatAppeal() {
