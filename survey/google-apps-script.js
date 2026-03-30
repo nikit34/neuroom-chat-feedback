@@ -16,39 +16,11 @@
 // 8. Вставь его в survey/index.html в строку GOOGLE_SCRIPT_URL = '...'
 //
 
-// Столбцы в нужном порядке
-var COLUMNS = [
-  'timestamp',
-  'r1_q1',         // Какой формат показа оценки понравился
-  'r1_q2',         // Почему (опционально)
-  'r2_q1',         // Где разбор ошибок понятнее
-  'r2_q2',         // Что удобнее (опционально)
-  'r3_q1',         // Где удобнее оспаривать
-  'r3_q2',         // Пользовался бы кнопкой
-  'r3_q2_detail',  // В какой ситуации
-  'f_q1',          // Чего не хватает
-  'f_q2',          // Одно слово
-];
-
-// Читаемые заголовки
-var HEADERS = [
-  'Время',
-  'Р1: Формат оценки',
-  'Р1: Почему',
-  'Р2: Разбор ошибок',
-  'Р2: Что удобнее',
-  'Р3: Оспаривание',
-  'Р3: Пользовался бы',
-  'Р3: В какой ситуации',
-  'Чего не хватает',
-  'Одно слово',
-];
+// Столбцы в порядке как в таблице:
+// Время | Р1: Формат оценки | Р1: Почему | Р2: Разбор ошибок | Р2: Что удобнее | Р3: Оспаривание | Р3: Пользовался бы | Р3: В какой ситуации | Чего не хватает | Одно слово
 
 function doPost(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Feedback');
-  if (!sheet) {
-    sheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet('Feedback');
-  }
 
   var data;
   try {
@@ -59,18 +31,18 @@ function doPost(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
 
-  // Создать заголовки если лист пустой
-  if (sheet.getLastRow() === 0) {
-    sheet.appendRow(HEADERS);
-    sheet.getRange(1, 1, 1, HEADERS.length).setFontWeight('bold');
-  }
-
-  // Собрать строку в нужном порядке
-  var row = COLUMNS.map(function(key) {
-    return data[key] || '';
-  });
-
-  sheet.appendRow(row);
+  sheet.appendRow([
+    data.timestamp || new Date().toISOString(),
+    data.r1_q1 || '',
+    data.r1_q2 || '',
+    data.r2_q1 || '',
+    data.r2_q2 || '',
+    data.r3_q1 || '',
+    data.r3_q2 || '',
+    data.r3_q2_detail || '',
+    data.f_q1 || '',
+    data.f_q2 || '',
+  ]);
 
   return ContentService
     .createTextOutput(JSON.stringify({ status: 'ok' }))
